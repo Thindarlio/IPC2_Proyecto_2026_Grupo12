@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/OrbitNet.Core/OrbitNet.Core.csproj" />
+    <Project Path="src/OrbitNet.Services/OrbitNet.Services.csproj" />
+    <Project Path="src/OrbitNet.Tests/OrbitNet.Tests.csproj" />
+    <Project Path="src/OrbitNet.Web/OrbitNet.Web.csproj" />
+  </Folder>
+</Solution>
