@@ -1,0 +1,4 @@
+echo bin/ > .gitignore
+echo obj/ >> .gitignore
+echo .vscode/ >> .gitignore
+echo *.log >> .gitignore
