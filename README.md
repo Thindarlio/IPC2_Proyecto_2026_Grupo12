@@ -11,7 +11,7 @@ Proyecto Único IPC2 2026 - Sistema Web de Monitoreo, Enrutamiento y Simulación
 | Bryan Merida      | 202400085 | Matriz Dispersa Ortogonal    |
 | [Compañero 1]     | [Carné]   | Árbol AVL                    |
 | [Compañero 2]     | [Carné]   | ABB Cola de Prioridad        |
-| [Compañero 3]     | [Carné]   | Lista Enlazada + XML + Regex |
+| Yosselin Oxlaj     | 202503415   | Lista Enlazada + XML + Regex |
 
 ---
 
@@ -49,7 +49,7 @@ git checkout -b feature/bryan
 | Bryan Merida      | Matriz Dispersa Ortogonal    | src/OrbitNet.Core/TDAs/RedSatelitalPlano.cs |
 | Compañero 1       | Árbol AVL                    | src/OrbitNet.Core/TDAs/RegistroSatelites.cs |
 | Compañero 2       | ABB Cola de Prioridad        | src/OrbitNet.Core/TDAs/BufferMensajes.cs    |
-| Compañero 3       | Lista Enlazada + XML + Regex | src/OrbitNet.Core/TDAs/LogAuditoria.cs      |
+| Yosselin Oxlaj       | Lista Enlazada + XML + Regex | src/OrbitNet.Core/TDAs/LogAuditoria.cs      |
 
 ---
 
