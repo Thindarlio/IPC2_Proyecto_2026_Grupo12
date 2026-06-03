@@ -10,7 +10,7 @@ Proyecto Único IPC2 2026 - Sistema Web de Monitoreo, Enrutamiento y Simulación
 | ----------------- | --------- | ---------------------------- |
 | Bryan Merida      | 202400085 | Matriz Dispersa Ortogonal    |
 | Daniela Velásquez  | 202503522  | Árbol AVL                    |
-| [Compañero 2]     | [Carné]   | ABB Cola de Prioridad        |
+| Nestor Reina    | 202403978   | ABB Cola de Prioridad        |
 | Yosselin Oxlaj     | 202503415   | Lista Enlazada + XML + Regex |
 
 ---
@@ -48,7 +48,7 @@ git checkout -b feature/bryan
 | ----------------- | ---------------------------- | ------------------------------------------- |
 | Bryan Merida      | Matriz Dispersa Ortogonal    | src/OrbitNet.Core/TDAs/RedSatelitalPlano.cs |
 | Compañero 1       | Árbol AVL                    | src/OrbitNet.Core/TDAs/RegistroSatelites.cs |
-| Compañero 2       | ABB Cola de Prioridad        | src/OrbitNet.Core/TDAs/BufferMensajes.cs    |
+| Nestor Reina       | ABB Cola de Prioridad        | src/OrbitNet.Core/TDAs/BufferMensajes.cs    |
 | Yosselin Oxlaj       | Lista Enlazada + XML + Regex | src/OrbitNet.Core/TDAs/LogAuditoria.cs      |
 
 ---
