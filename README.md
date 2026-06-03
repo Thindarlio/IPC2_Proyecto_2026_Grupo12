@@ -9,7 +9,7 @@ Proyecto Único IPC2 2026 - Sistema Web de Monitoreo, Enrutamiento y Simulación
 | Nombre            | Carné     | Rol                          |
 | ----------------- | --------- | ---------------------------- |
 | Bryan Merida      | 202400085 | Matriz Dispersa Ortogonal    |
-| [Compañero 1]     | [Carné]   | Árbol AVL                    |
+| Daniela Velásquez  | 202503522  | Árbol AVL                    |
 | [Compañero 2]     | [Carné]   | ABB Cola de Prioridad        |
 | Yosselin Oxlaj     | 202503415   | Lista Enlazada + XML + Regex |
 
