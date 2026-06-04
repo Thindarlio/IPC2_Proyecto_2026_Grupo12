@@ -9,8 +9,8 @@ namespace OrbitNet.Models.Nodes
         public int Height { get; set; }          // Altura del nodo para el balanceo [cite: 208]
 
         // Punteros lógicos autorreferenciados a los hijos izquierdo y derecho
-        public AvlNode LeftChild { get; set; }   // [cite: 209]
-        public AvlNode RightChild { get; set; }  // [cite: 209]
+        public AvlNode? LeftChild { get; set; }   // [cite: 209]
+        public AvlNode? RightChild { get; set; }  // [cite: 209]
 
         // Constructor: inicializa el satélite listo para ser insertado
         public AvlNode(string satelliteId, string name, double frequency)
