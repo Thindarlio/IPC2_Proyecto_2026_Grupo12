@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\bryan\\OneDrive\\Desktop\\IPC 2 Vacas\\IPC2_Proyecto_2026_Grupo12\\src\\OrbitNet\\OrbitNet.csproj": {}
+    "C:\\Users\\daniv\\IPC2_Proyecto_2026_Grupo12\\src\\OrbitNet\\OrbitNet.csproj": {}
   },
   "projects": {
-    "C:\\Users\\bryan\\OneDrive\\Desktop\\IPC 2 Vacas\\IPC2_Proyecto_2026_Grupo12\\src\\OrbitNet\\OrbitNet.csproj": {
+    "C:\\Users\\daniv\\IPC2_Proyecto_2026_Grupo12\\src\\OrbitNet\\OrbitNet.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\bryan\\OneDrive\\Desktop\\IPC 2 Vacas\\IPC2_Proyecto_2026_Grupo12\\src\\OrbitNet\\OrbitNet.csproj",
+        "projectUniqueName": "C:\\Users\\daniv\\IPC2_Proyecto_2026_Grupo12\\src\\OrbitNet\\OrbitNet.csproj",
         "projectName": "OrbitNet",
-        "projectPath": "C:\\Users\\bryan\\OneDrive\\Desktop\\IPC 2 Vacas\\IPC2_Proyecto_2026_Grupo12\\src\\OrbitNet\\OrbitNet.csproj",
-        "packagesPath": "C:\\Users\\bryan\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\bryan\\OneDrive\\Desktop\\IPC 2 Vacas\\IPC2_Proyecto_2026_Grupo12\\src\\OrbitNet\\obj\\",
+        "projectPath": "C:\\Users\\daniv\\IPC2_Proyecto_2026_Grupo12\\src\\OrbitNet\\OrbitNet.csproj",
+        "packagesPath": "C:\\Users\\daniv\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\daniv\\IPC2_Proyecto_2026_Grupo12\\src\\OrbitNet\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\bryan\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\daniv\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
