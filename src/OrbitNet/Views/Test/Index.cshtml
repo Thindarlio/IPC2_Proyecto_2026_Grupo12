@@ -1,0 +1,69 @@
+@model IEnumerable<OrbitNet.Models.Nodes.MatrixNode>
+
+@{
+    ViewData["Title"] = "Prueba Matriz Dispersa";
+}
+
+<h1>Prueba de Matriz Dispersa Ortogonal</h1>
+
+@if (ViewBag.Mensaje != null)
+{
+    <div style="color: green; margin: 10px 0; padding: 10px; background: lightgreen;">
+        @ViewBag.Mensaje
+    </div>
+}
+
+@if (ViewBag.Resultado != null)
+{
+    <div style="color: blue; margin: 10px 0; padding: 10px; background: lightblue;">
+        @ViewBag.Resultado
+    </div>
+}
+
+<h3>Acciones</h3>
+<a href="/Test/Insertar">Insertar 3 satélites</a> | 
+<a href="/Test/Limpiar">Limpiar todo</a>
+
+<hr />
+
+<h3>Buscar satélite</h3>
+<form action="/Test/Buscar" method="get">
+    Fila: <input type="number" name="row" required /> |
+    Columna: <input type="number" name="col" required />
+    <button type="submit">Buscar</button>
+</form>
+
+<hr />
+
+<h3>Eliminar satélite</h3>
+<form action="/Test/Eliminar" method="get">
+    Fila: <input type="number" name="row" required /> |
+    Columna: <input type="number" name="col" required />
+    <button type="submit">Eliminar</button>
+</form>
+
+<hr />
+
+<h3>Satélites actuales (@Model.Count())</h3>
+
+<table border="1" cellpadding="5">
+    <thead>
+        <tr>
+            <th>Fila</th>
+            <th>Columna</th>
+            <th>ID</th>
+            <th>IP</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var sat in Model)
+        {
+            <tr>
+                <td>@sat.Row</td>
+                <td>@sat.Col</td>
+                <td>@sat.Id</td>
+                <td>@sat.IpAddress</td>
+            </tr>
+        }
+    </tbody>
+</table>

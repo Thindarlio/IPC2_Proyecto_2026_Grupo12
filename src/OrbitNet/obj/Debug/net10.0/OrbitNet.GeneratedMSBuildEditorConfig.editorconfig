@@ -12,17 +12,56 @@ build_property.EntryPointFilePath =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = OrbitNet
 build_property.RootNamespace = OrbitNet
+<<<<<<< HEAD
+build_property.ProjectDir = C:\Users\bryan\OneDrive\Desktop\IPC 2 Vacas\IPC2_Proyecto_2026_Grupo12\src\OrbitNet\
+=======
 build_property.ProjectDir = C:\Users\daniv\IPC2_Proyecto_2026_Grupo12\src\OrbitNet\
+>>>>>>> af4f05c3a186b28f0e1929b9d126110f505cd324
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 10.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+<<<<<<< HEAD
+build_property.MSBuildProjectDirectory = C:\Users\bryan\OneDrive\Desktop\IPC 2 Vacas\IPC2_Proyecto_2026_Grupo12\src\OrbitNet
+=======
 build_property.MSBuildProjectDirectory = C:\Users\daniv\IPC2_Proyecto_2026_Grupo12\src\OrbitNet
+>>>>>>> af4f05c3a186b28f0e1929b9d126110f505cd324
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 10.0
 build_property.EnableCodeStyleSeverity = 
 
+<<<<<<< HEAD
+[C:/Users/bryan/OneDrive/Desktop/IPC 2 Vacas/IPC2_Proyecto_2026_Grupo12/src/OrbitNet/Views/Home/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/bryan/OneDrive/Desktop/IPC 2 Vacas/IPC2_Proyecto_2026_Grupo12/src/OrbitNet/Views/Home/Privacy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/bryan/OneDrive/Desktop/IPC 2 Vacas/IPC2_Proyecto_2026_Grupo12/src/OrbitNet/Views/Shared/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/bryan/OneDrive/Desktop/IPC 2 Vacas/IPC2_Proyecto_2026_Grupo12/src/OrbitNet/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/bryan/OneDrive/Desktop/IPC 2 Vacas/IPC2_Proyecto_2026_Grupo12/src/OrbitNet/Views/Test/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGVzdFxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/bryan/OneDrive/Desktop/IPC 2 Vacas/IPC2_Proyecto_2026_Grupo12/src/OrbitNet/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/bryan/OneDrive/Desktop/IPC 2 Vacas/IPC2_Proyecto_2026_Grupo12/src/OrbitNet/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/bryan/OneDrive/Desktop/IPC 2 Vacas/IPC2_Proyecto_2026_Grupo12/src/OrbitNet/Views/Shared/_Layout.cshtml]
+=======
 [C:/Users/daniv/IPC2_Proyecto_2026_Grupo12/src/OrbitNet/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -48,5 +87,6 @@ build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/daniv/IPC2_Proyecto_2026_Grupo12/src/OrbitNet/Views/Shared/_Layout.cshtml]
+>>>>>>> af4f05c3a186b28f0e1929b9d126110f505cd324
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-dyrfqbyeie
