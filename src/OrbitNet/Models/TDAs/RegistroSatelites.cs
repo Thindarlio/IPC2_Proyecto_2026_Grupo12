@@ -5,12 +5,12 @@ namespace OrbitNet.Models.TDAs
 {
     public class RegistroSatelites
     {
-        // Puntero raíz del árbol almacenado en el Heap de la RAM [cite: 41, 42]
+        // Puntero raíz del árbol almacenado en el Heap de la RAM
         private AvlNode? raiz;
 
         public RegistroSatelites()
         {
-            raiz = null; // Inicialmente el catálogo global está vacío [cite: 202]
+            raiz = null; // Inicialmente el catálogo global está vacío 
         }
 
         // ==========================================================
@@ -24,11 +24,11 @@ namespace OrbitNet.Models.TDAs
             return nodo.Height;
         }
 
-        // Calcula el Factor de Equilibrio con la fórmula exacta: FE = H_der - H_izq [cite: 210]
-        private int ObtenerFactorEquilibrio(AvlNode nodo)
+        // CORRECCIÓN: Agregamos '?' al parámetro AvlNode para soportar nulabilidad de forma segura
+        private int ObtenerFactorEquilibrio(AvlNode? nodo)
         {
             if (nodo == null) return 0;
-            return ObtenerAltura(nodo.RightChild) - ObtenerAltura(nodo.LeftChild); // [cite: 210]
+            return ObtenerAltura(nodo.RightChild) - ObtenerAltura(nodo.LeftChild);
         }
 
         // Devuelve el valor mayor entre dos enteros
@@ -41,12 +41,12 @@ namespace OrbitNet.Models.TDAs
         // ROTACIONES MANUALES DE PUNTEROS 
         // ==========================================================
 
-        // Rotación Simple a la Derecha (LL) - Inserción en hijo izquierdo del subárbol izquierdo [cite: 214, 217]
+        // CORRECCIÓN: Separamos la firma del comentario para que C# la reconozca perfectamente
+        // Rotación Simple a la Derecha (LL) - Inserción en hijo izquierdo del subárbol izquierdo
         private AvlNode? RotacionDerecha(AvlNode? y)
         {
-
             // 1. PROTECCIÓN DE SEGURIDAD: Si y es nulo, no se puede hacer nada
-             if (y == null) return null;
+            if (y == null) return null;
 
             // 2. PROTECCIÓN DEL HIJO: Si no hay hijo izquierdo, es imposible rotar a la derecha
             if (y.LeftChild == null) return y;
@@ -54,7 +54,7 @@ namespace OrbitNet.Models.TDAs
             AvlNode? x = y.LeftChild;
             AvlNode? T2 = x.RightChild;
 
-           // Quirófano de punteros: intercambiamos referencias en memoria RAM [cite: 39]
+            // Quirófano de punteros: intercambiamos referencias en memoria RAM
             x.RightChild = y;
             y.LeftChild = T2;
 
@@ -65,20 +65,19 @@ namespace OrbitNet.Models.TDAs
             return x; // Retorna la nueva raíz de este subárbol
         }
 
-        // Rotación Simple a la Izquierda (RR) - Inserción en hijo derecho del subárbol derecho [cite: 213, 218]
+        // Rotación Simple a la Izquierda (RR) - Inserción en hijo derecho del subárbol derecho
         private AvlNode? RotacionIzquierda(AvlNode? x)
         {
-
             // 1. PROTECCIÓN DE SEGURIDAD: Si x es nulo, no se puede hacer nada
             if (x == null) return null;
 
-             // 2. PROTECCIÓN DEL HIJO: Si no hay hijo derecho, es imposible rotar a la izquierda
+            // 2. PROTECCIÓN DEL HIJO: Si no hay hijo derecho, es imposible rotar a la izquierda
             if (x.RightChild == null) return x;
 
             AvlNode? y = x.RightChild;
             AvlNode? T2 = y.LeftChild;
 
-            // Quirófano de punteros: intercambiamos referencias en memoria RAM [cite: 39]
+            // Quirófano de punteros: intercambiamos referencias en memoria RAM
             y.LeftChild = x;
             x.RightChild = T2;
 
@@ -93,7 +92,7 @@ namespace OrbitNet.Models.TDAs
         // MÉTODO DE INSERCIÓN Y BALANCEO
         // ==========================================================
 
-        // Método público expuesto para ser invocado por el motor de ingesta XML [cite: 263, 270]
+        // Método público expuesto para ser invocado por el motor de ingesta XML
         public void Insertar(string id, string nombre, double frecuencia)
         {
             raiz = InsertarRecursivo(raiz, id, nombre, frecuencia);
@@ -102,13 +101,13 @@ namespace OrbitNet.Models.TDAs
         // Algoritmo interno recursivo para ubicar la posición y balancear el nodo
         private AvlNode? InsertarRecursivo(AvlNode? nodoActual, string id, string nombre, double frecuencia)
         {
-            // Base de la recursividad: se encuentra el espacio vacío en el Heap [cite: 42]
+            // Base de la recursividad: se encuentra el espacio vacío en el Heap
             if (nodoActual == null)
             {
                 return new AvlNode(id, nombre, frecuencia);
             }
 
-            //cite_start Comparamos las llaves alfabéticamente para decidir la dirección del tránsito [cite: 205]
+            // Comparamos las llaves alfabéticamente para decidir la dirección del tránsito
             int comparacion = string.Compare(id, nodoActual.SatelliteId);
 
             if (comparacion < 0)
@@ -121,47 +120,47 @@ namespace OrbitNet.Models.TDAs
             }
             else
             {
-                // Regula que no existan duplicados en el catálogo global [cite: 205]
+                // Regula que no existan duplicados en el catálogo global
                 throw new Exception($"El Satélite con ID '{id}' ya existe en el catálogo global.");
             }
 
-            // Actualizamos la altura del nodo actual tras la inserción de la hoja [cite: 208]
+            // Actualizamos la altura del nodo actual tras la inserción de la hoja
             nodoActual.Height = 1 + Maximo(ObtenerAltura(nodoActual.LeftChild), ObtenerAltura(nodoActual.RightChild));
 
-            // Evaluamos el factor de balanceo riguroso sobre el nodo ancestro [cite: 52, 210]
+            // Evaluamos el factor de balanceo riguroso sobre el nodo ancestro
             int fe = ObtenerFactorEquilibrio(nodoActual);
 
             // ------------------------------------------------------
-            // EVALUACIÓN DE LOS 4 CASOS DE DESBALANCE (|FE| >= 2) [cite: 211, 212]
+            // EVALUACIÓN DE LOS 4 CASOS DE DESBALANCE (|FE| >= 2)
             // ------------------------------------------------------
 
-            // Caso 1: Rotación Simple Derecha (LL) [cite: 214, 217]
+            // Caso 1: Rotación Simple Derecha (LL) 
             if (fe < -1 && string.Compare(id, nodoActual.LeftChild?.SatelliteId) < 0)
             {
                 return RotacionDerecha(nodoActual);
             }
 
-            // Caso 2: Rotación Simple Izquierda (RR) [cite: 213, 218]
+            // Caso 2: Rotación Simple Izquierda (RR) 
             if (fe > 1 && string.Compare(id, nodoActual.RightChild?.SatelliteId) > 0)
             {
                 return RotacionIzquierda(nodoActual);
             }
 
-            // Caso 3: Rotación Doble Izquierda-Derecha (LR) [cite: 215]
+            // Caso 3: Rotación Doble Izquierda-Derecha (LR) 
             if (fe < -1 && string.Compare(id, nodoActual.LeftChild?.SatelliteId) > 0)
             {
-                nodoActual.LeftChild = RotacionIzquierda(nodoActual.LeftChild); // [cite: 215]
-                return RotacionDerecha(nodoActual); // [cite: 215]
+                nodoActual.LeftChild = RotacionIzquierda(nodoActual.LeftChild); 
+                return RotacionDerecha(nodoActual); 
             }
 
-            // Caso 4: Rotación Doble Derecha-Izquierda (RL) [cite: 216]
+            // Caso 4: Rotación Doble Derecha-Izquierda (RL) 
             if (fe > 1 && string.Compare(id, nodoActual.RightChild?.SatelliteId) < 0)
             {
-                nodoActual.RightChild = RotacionDerecha(nodoActual.RightChild); // [cite: 216]
-                return RotacionIzquierda(nodoActual); // [cite: 216]
+                nodoActual.RightChild = RotacionDerecha(nodoActual.RightChild); 
+                return RotacionIzquierda(nodoActual); 
             }
 
-            return nodoActual; // El subárbol permanece equilibrado [cite: 51, 57]
+            return nodoActual; // El subárbol permanece equilibrado 
         }
     }
 }
