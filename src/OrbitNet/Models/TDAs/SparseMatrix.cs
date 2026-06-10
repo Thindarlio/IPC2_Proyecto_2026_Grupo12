@@ -12,12 +12,12 @@ public class SparseMatrix : IAbstractCollection
     private readonly int _maxSatelites;     // Tamaño máximo configurable
     private MatrixNode[] _satelites;        // Arreglo fijo
     private int _contadorSatelites;         // Contador actual
-    
+
     private HeaderNode _rowHeaders;
     private HeaderNode _colHeaders;
 
     // ======== CONSTRUCTORES =======
-    
+
     /// <summary>
     /// Constructor con tamaño personalizado
     /// </summary>
@@ -37,8 +37,8 @@ public class SparseMatrix : IAbstractCollection
     public int MaxCapacity => _maxSatelites;  // Para saber el máximo
 
     //============ MÉTODOS PÚBLICOS =========== 
-    
-    public void Insert(int row, int col, string id, string ipAddress)
+
+    public void Insert(int row, int col, string id, string name, string ipAddress, string nodeType, string? extraData)
     {
         // Validar que no esté lleno
         if (_contadorSatelites >= _maxSatelites)
@@ -47,30 +47,36 @@ public class SparseMatrix : IAbstractCollection
         if (Search(row, col) != null)
             throw new InvalidOperationException($"Ya existe satélite en ({row},{col})");
 
-        if (!IsValidSatelliteId(id))
+        if (!IsValidSatelliteId(id) && !id.StartsWith("ANT"))  // ANT también es válido
             throw new ArgumentException($"ID inválido: {id}");
-        
+
         if (!IsValidIpAddress(ipAddress))
             throw new ArgumentException($"IP inválida: {ipAddress}");
 
-        MatrixNode newNode = new MatrixNode(row, col, id, ipAddress);
-        
+        MatrixNode newNode = new MatrixNode(row, col, id, name, ipAddress, nodeType, extraData);
+
         InsertRowHeader(row);
         InsertColHeader(col);
         InsertInRow(newNode);
         InsertInColumn(newNode);
-        
+
         _satelites[_contadorSatelites] = newNode;
         _contadorSatelites++;
     }
 
-    public MatrixNode Search(int row, int col)
+    // Método de compatibilidad para código que manda null como extraData
+    public void Insert(int row, int col, string id, string name, string ipAddress, string nodeType)
     {
-        HeaderNode rowHeader = FindRowHeader(row);
+        Insert(row, col, id, name, ipAddress, nodeType, null);
+    }
+    public MatrixNode? Search(int row, int col)
+    {
+
+        HeaderNode? rowHeader = FindRowHeader(row);
         if (rowHeader == null || rowHeader.Access == null)
             return null;
 
-        MatrixNode current = rowHeader.Access;
+        MatrixNode? current = rowHeader.Access;
         while (current != null && current.Col <= col)
         {
             if (current.Col == col)
@@ -145,7 +151,7 @@ public class SparseMatrix : IAbstractCollection
     {
         _rowHeaders = null;
         _colHeaders = null;
-        
+
         for (int i = 0; i < _contadorSatelites; i++)
         {
             _satelites[i] = null;
@@ -164,7 +170,7 @@ public class SparseMatrix : IAbstractCollection
     }
 
     // MÉTODOS PRIVADOS (matriz dispersa)
-    
+
     private void InsertRowHeader(int row)
     {
         if (_rowHeaders == null)
@@ -186,7 +192,7 @@ public class SparseMatrix : IAbstractCollection
             return;
 
         HeaderNode newHeader = new HeaderNode(row);
-        
+
         if (previous == null)
         {
             newHeader.Next = _rowHeaders;
@@ -220,7 +226,7 @@ public class SparseMatrix : IAbstractCollection
             return;
 
         HeaderNode newHeader = new HeaderNode(col);
-        
+
         if (previous == null)
         {
             newHeader.Next = _colHeaders;
@@ -322,8 +328,8 @@ public class SparseMatrix : IAbstractCollection
     }
 
 
-// MÉTODOS DE VALIDACIÓN: para ip y id de satélite 
-// Valida formato SAT-XXX-1234 y IPv4 (0-255)
+    // MÉTODOS DE VALIDACIÓN: para ip y id de satélite 
+    // Valida formato SAT-XXX-1234 y IPv4 (0-255)
     private bool IsValidSatelliteId(string id)
     {
         if (string.IsNullOrEmpty(id)) return false;
@@ -333,7 +339,45 @@ public class SparseMatrix : IAbstractCollection
     private bool IsValidIpAddress(string ip)
     {
         if (string.IsNullOrEmpty(ip)) return false;
-        return System.Text.RegularExpressions.Regex.IsMatch(ip, 
+        return System.Text.RegularExpressions.Regex.IsMatch(ip,
             @"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
+    }
+
+
+    public IEnumerable<MatrixNode> GetAllNodes()
+    {
+        HeaderNode? rowCurrent = _rowHeaders;
+        while (rowCurrent != null)
+        {
+            MatrixNode? nodeCurrent = rowCurrent.Access;
+            while (nodeCurrent != null)
+            {
+                yield return nodeCurrent;
+                nodeCurrent = nodeCurrent.Right;
+            }
+            rowCurrent = rowCurrent.Next;
+        }
+    }
+
+    // ========== MÉTODO PARA OBTENER NODOS POR TIPO ==========
+    public IEnumerable<MatrixNode> GetNodesByType(string nodeType)
+    {
+        foreach (var node in GetAllNodes())
+        {
+            if (node.NodeType == nodeType)
+                yield return node;
+        }
+    }
+
+    // ========== MÉTODO PARA CONTAR POR TIPO ==========
+    public int CountByType(string nodeType)
+    {
+        int count = 0;
+        foreach (var node in GetAllNodes())
+        {
+            if (node.NodeType == nodeType)
+                count++;
+        }
+        return count;
     }
 }

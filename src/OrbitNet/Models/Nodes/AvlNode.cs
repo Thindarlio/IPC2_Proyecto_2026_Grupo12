@@ -2,7 +2,7 @@ namespace OrbitNet.Models.Nodes
 {
     public class AvlNode
     {
-        // Atributos obligatorios según el enunciado del catálogo global
+        // Atributos obligatorios según el enunciado del proyecto catálogo global
         public string SatelliteId { get; set; }  // Llave única (Ej: SAT-ECU-0001) [cite: 205, 298]
         public string Name { get; set; }         // Nombre identificador [cite: 206]
         public double Frequency { get; set; }    // Frecuencia de operación [cite: 207]

@@ -14,7 +14,7 @@ namespace OrbitNet.Models.TDAs
         }
 
         // ==========================================================
-        // OPERACIONES AUXILIARES DE MEDICIÓN
+        // OPERACIONES DE MEDICIÓN
         // ==========================================================
 
         // Devuelve la altura de un nodo de forma segura sin romper el programa si es nulo
@@ -24,7 +24,7 @@ namespace OrbitNet.Models.TDAs
             return nodo.Height;
         }
 
-        // CORRECCIÓN: Agregamos '?' al parámetro AvlNode para soportar nulabilidad de forma segura
+        // CORRECCIÓN: Agregamos '?' al parámetro AvlNode 
         private int ObtenerFactorEquilibrio(AvlNode? nodo)
         {
             if (nodo == null) return 0;
