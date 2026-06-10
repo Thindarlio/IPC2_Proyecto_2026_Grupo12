@@ -4,18 +4,18 @@ Proyecto Único IPC2 2026 - Sistema Web de Monitoreo, Enrutamiento y Simulación
 
 ---
 
-##  Integrantes
+# Integrantes
 
-| Nombre            | Carné     | Rol                          |
-| ----------------- | --------- | ---------------------------- |
-| Bryan Merida      | 202400085 | Matriz Dispersa Ortogonal    |
-| Daniela Velásquez  | 202503522  | Árbol AVL                    |
-| Nestor Reina    | 202403978   | ABB Cola de Prioridad        |
-| Yosselin Oxlaj     | 202503415   | Lista Enlazada + XML + Regex |
+| Nombre            | Carné     |
+| ----------------- | --------- |
+| Bryan Merida      | 202400085 |
+| Daniela Velásquez | 202503522 |
+| Nestor Reina      | 202403978 |
+| Yosselin Oxlaj    | 202503415 |
 
 ---
 
-#  Cómo empezar a trabajar
+# Cómo empezar a trabajar
 
 ## 1. Clonar el repositorio
 
@@ -26,7 +26,7 @@ cd IPC2_Proyecto_2026_Grupo12
 
 ---
 
-## 2. Crear su rama de trabajo
+## 2. Crear tu rama de trabajo
 
 Cada integrante debe trabajar únicamente en su propia rama.
 
@@ -42,104 +42,163 @@ git checkout -b feature/bryan
 
 ---
 
-## 3. Asignación Fase 1
+# Flujo de Trabajo
 
-| Integrante        | Módulo Principal             | Archivo Principal                           |
-| ----------------- | ---------------------------- | ------------------------------------------- |
-| Bryan Merida      | Matriz Dispersa Ortogonal    | src/OrbitNet.Core/TDAs/RedSatelitalPlano.cs |
-| Compañero 1       | Árbol AVL                    | src/OrbitNet.Core/TDAs/RegistroSatelites.cs |
-| Nestor Reina       | ABB Cola de Prioridad        | src/OrbitNet.Core/TDAs/BufferMensajes.cs    |
-| Yosselin Oxlaj       | Lista Enlazada + XML + Regex | src/OrbitNet.Core/TDAs/LogAuditoria.cs      |
+## 1. Antes de programar
 
----
-
-## 4. Flujo de trabajo diario
-
-Antes de comenzar a programar:
+Siempre verificar si existen cambios nuevos en la rama `develop`.
 
 ```bash
-git checkout main
-git pull
-git checkout feature/tu-nombre
-git merge main
+git checkout develop
+git pull origin develop
+
+git checkout feature/bryan
+git merge develop
 ```
+
+Esto garantiza que todos trabajen sobre la versión más reciente del proyecto.
 
 ---
 
-Al finalizar los cambios:
+## 2. Programar y subir cambios a Feature
+
+Realizar los cambios correspondientes y luego:
 
 ```bash
 git add .
-git commit -m "feat: descripcion clara de lo realizado"
-git push origin feature/tu-nombre
+git commit -m "feat: descripción de lo que hiciste"
+git push origin feature/bryan
 ```
 
-Ejemplos:
+Ejemplo:
 
 ```bash
-git commit -m "feat: insercion ordenada en matriz dispersa"
-git commit -m "feat: rotacion simple AVL"
-git commit -m "fix: correccion de busqueda ABB"
-git commit -m "docs: actualizacion README"
+git commit -m "feat: inserción de nodos AVL"
+git commit -m "feat: generación de reporte SVG"
+git commit -m "fix: corrección búsqueda ABB"
 ```
 
 ---
 
-##  Reglas del Proyecto
+## 3. Verificar cambios del equipo
 
-* No trabajar directamente sobre la rama `main`.
-* Cada integrante debe utilizar su propia rama `feature`.
-* Realizar commits frecuentes y descriptivos.
-* Mantener el código comentado cuando sea necesario.
-* Hacer `git pull` antes de comenzar a trabajar.
-* Resolver conflictos antes de crear Pull Requests.
-* Realizar al menos 3 commits significativos por semana.
+Antes de continuar trabajando, revisar siempre la rama `develop` para comprobar si algún compañero ya integró cambios.
+
+```bash
+git checkout develop
+git pull origin develop
+```
+
+Posteriormente:
+
+```bash
+git checkout feature/bryan
+git merge develop
+```
 
 ---
 
-#  Estructura del Proyecto
+## 4. Integrar cambios a Develop
+
+Una vez que los cambios fueron probados y verificados:
+
+```bash
+git checkout develop
+
+git pull origin develop
+
+git merge feature/bryan
+
+git push origin develop
+
+git checkout feature/bryan
+```
+# Asignación Fase 1
+
+| Integrante        | Trabajo                      |
+| ----------------- | ---------------------------- |
+| Bryan Merida      | Matriz Dispersa Ortogonal    |
+| Daniela Velásquez | Árbol AVL                    |
+| Nestor Reina      | ABB Cola de Prioridad        |
+| Yosselin Oxlaj    | Lista Enlazada + XML + Regex |
+
+---
+
+# Fase 2 - Asignación de Trabajo
+
+| Integrante        | Trabajo                                                                                  |
+| ----------------- | ---------------------------------------------------------------------------------------- |
+| Bryan Merida      | Configuración de puertos (5000/5001), Vista Index.cshtml, GraphvizService y reportes SVG |
+| Daniela Velásquez | Completar Árbol AVL (Buscar, Count, Clear, Eliminar) y apoyo en pruebas y reportes       |
+| Nestor Reina      | Implementación de ABB Cola de Prioridad y AbbNode                                        |
+| Yosselin Oxlaj    | Integración de LogAuditoria con la vista                                                 |
+
+---
+
+# Reglas del Proyecto
+
+* No trabajar directamente sobre `main`.
+* Todos los cambios deben pasar por `develop`.
+* Cada integrante debe trabajar en su propia rama `feature`.
+* Realizar commits descriptivos.
+* Hacer pull de `develop` antes de comenzar a programar.
+* Resolver conflictos antes de integrar cambios.
+* Verificar que el proyecto compile antes de hacer merge a `develop`.
+
+---
+
+# Estructura Actual del Proyecto
 
 ```text
 IPC2_Proyecto_2026_Grupo12/
-│
-├── .gitignore
-├── README.md
+
 │
 ├── docs/
-│
-├── scripts/
+│   ├── MANUAL_TECNICO.md
+│   └── MANUAL_USUARIO.md
 │
 ├── src/
-│   │
-│   ├── OrbitNet.Core/
-│   │   ├── Interfaces/
-│   │   ├── Nodes/
-│   │   ├── TDAs/
-│   │   └── Validators/
-│   │
-│   ├── OrbitNet.Services/
-│   │
-│   ├── OrbitNet.Web/
-│   │
-│   └── OrbitNet.Tests/
+│   └── OrbitNet/
+│       │
+│       ├── Controllers/
+│       │   └── HomeController.cs
+│       │
+│       ├── Models/
+│       │   ├── Interfaces/
+│       │   │   └── IAbstractCollection.cs
+│       │   │
+│       │   ├── Nodes/
+│       │   │   ├── MatrixNode.cs
+│       │   │   ├── HeaderNode.cs
+│       │   │   ├── AvlNode.cs
+│       │   │   ├── AbbNode.cs
+│       │   │   └── LogNode.cs
+│       │   │
+│       │   ├── TDAs/
+│       │   │   ├── SparseMatrix.cs
+│       │   │   ├── RegistroSatelites.cs
+│       │   │   ├── BufferMensajes.cs
+│       │   │   └── LogAuditoria.cs
+│       │   │
+│       │   └── ViewModels/
+│       │       └── DashboardViewModel.cs
+│       │
+│       ├── Services/
+│       │   └── GraphvizService.cs
+│       │
+│       ├── Views/
+│       │   └── Home/
+│       │       └── Index.cshtml
+│       │
+│       └── wwwroot/
 │
-└── IPC2_Proyecto_2026_Grupo12.sln
+└── tests/
+    └── OrbitNet.Tests/
 ```
 
 ---
 
-#  Tecnologías
-
-* C#
-* .NET 8
-* ASP.NET Core MVC
-* Graphviz
-* xUnit / NUnit
-* Git & GitHub
-
----
-
-#  Estrategia de Ramas
+# Estrategia de Ramas
 
 ```text
 main
@@ -147,24 +206,7 @@ main
 └── develop
      │
      ├── feature/bryan
-     ├── feature/compi1
-     ├── feature/compi2
-     └── feature/compi3
-```
-
----
-
-#  Objetivo Fase 1
-
-Implementar:
-
-* Estructura inicial del proyecto. 
-* Configuración Git Flow. 
-* Interfaces base.
-* Nodos de las estructuras.
-* Carga XML mediante XPath.
-* Validaciones mediante Regex.
-* Pruebas iniciales de carga masiva.
-
-```
+     ├── feature/daniela
+     ├── feature/nestor
+     └── feature/yosselin
 ```
