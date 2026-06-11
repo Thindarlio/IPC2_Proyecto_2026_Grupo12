@@ -162,7 +162,7 @@ namespace OrbitNet.Controllers
                                     $"DEBUG NODO → tipo='{nodo.NodeType}' nombre='{nodo.Name}' " +
                                     $"atributos={nodo.Attributes?.Count ?? 0} " +
                                     $"xml='{nodo.OuterXml}'");
-                                    string? sateliteId = nodo.Attributes["id"]?.Value?.Trim();
+                                    string? sateliteId = nodo.Attributes?["id"]?.Value?.Trim();
                                     string? nombre = nodo.SelectSingleNode("nombre")?.InnerText?.Trim();
                                     string? frecuencia = nodo.SelectSingleNode("frecuencia")?.InnerText?.Trim();
                                      // ← Agrega esto temporalmente para ver qué lee
@@ -209,7 +209,7 @@ namespace OrbitNet.Controllers
                         {
                             foreach(XmlNode nodo in antenas)
                             {
-                                string? id = nodo.Attributes["id"]?.Value?.Trim();
+                                string? id = nodo.Attributes?["id"]?.Value?.Trim();
                                 string? nombre = nodo.SelectSingleNode("nombre")?.InnerText?.Trim();
                                 string? coords = nodo.SelectSingleNode("coordenadas")?.InnerText?.Trim();
                                 string? ip = nodo.SelectSingleNode("ip_nodo")?.InnerText?.Trim();

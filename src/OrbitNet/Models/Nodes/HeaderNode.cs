@@ -1,13 +1,23 @@
-namespace OrbitNet.Models.Nodes;
+using System;
 
-public class HeaderNode
+namespace OrbitNet.Models.Nodes
 {
-    public int Index { get; set; }
-    public HeaderNode Next { get; set; }
-    public MatrixNode Access { get; set; }
-
-    public HeaderNode(int index)
+    
+    public class HeaderNode
     {
-        Index = index;
+        // El índice posicional (puede ser la coordenada X, Y o el ID alfanumérico)
+        public int Index { get; set; }
+
+        public HeaderNode? Next { get; set; }
+
+        public MatrixNode? Access { get; set; }
+
+        // Constructor: Inicializa la cabecera con su coordenada base
+        public HeaderNode(int index)
+        {
+            Index = index;
+            Next = null;   
+            Access = null; 
+        }
     }
 }
