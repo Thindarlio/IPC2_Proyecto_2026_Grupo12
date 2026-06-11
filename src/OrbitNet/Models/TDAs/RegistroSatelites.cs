@@ -1,12 +1,11 @@
 using System;
-using OrbitNet.Models.Nodes; 
+using OrbitNet.Models.Nodes;
 
 namespace OrbitNet.Models.TDAs
 {
     
     public class RegistroSatelites
     {
-        [cite_start]// Puntero raíz del árbol que apunta al primer nodo en el Heap de la RAM [cite: 42]
         private AvlNode? raiz;
         private int conteo;
 
@@ -49,10 +48,10 @@ namespace OrbitNet.Models.TDAs
         }
 
         // ==========================================================
-        [cite_start]// ROTACIONES MANUALES DE REFERENCIAS EN MEMORIA RAM [cite: 212]
+        // ROTACIONES MANUALES DE REFERENCIAS EN MEMORIA RAM [cite: 212]
         // ==========================================================
 
-        [cite_start]// Rotación Simple a la Derecha (Caso LL) [cite: 214, 217]
+        // Rotación Simple a la Derecha (Caso LL) [cite: 214, 217]
         private AvlNode? RotacionDerecha(AvlNode? y)
         {
             if (y == null) return null;
@@ -61,7 +60,7 @@ namespace OrbitNet.Models.TDAs
             AvlNode? x = y.LeftChild;
             AvlNode? T2 = x.RightChild;
 
-            [cite_start]// Quirófano de punteros: Reconfiguración atómica de enlaces físicos en el Heap [cite: 42, 150]
+            // Quirófano de punteros: Reconfiguración atómica de enlaces físicos en el Heap [cite: 42, 150]
             x.RightChild = y;
             y.LeftChild = T2;
 
@@ -72,7 +71,7 @@ namespace OrbitNet.Models.TDAs
             return x; // Retorna el puntero de la nueva raíz de la rama
         }
 
-        [cite_start]// Rotación Simple a la Izquierda (Caso RR) [cite: 213, 219]
+        // Rotación Simple a la Izquierda (Caso RR) [cite: 213, 219]
         private AvlNode? RotacionIzquierda(AvlNode? x)
         {
             if (x == null) return null;
@@ -81,7 +80,7 @@ namespace OrbitNet.Models.TDAs
             AvlNode? y = x.RightChild;
             AvlNode? T2 = y.LeftChild;
 
-            [cite_start]// Quirófano de punteros: Reconfiguración atómica de enlaces físicos en el Heap [cite: 42, 150]
+            // Quirófano de punteros: Reconfiguración atómica de enlaces físicos en el Heap [cite: 42, 150]
             y.LeftChild = x;
             x.RightChild = T2;
 
@@ -111,7 +110,7 @@ namespace OrbitNet.Models.TDAs
                 return new AvlNode(id, nombre, frecuencia);
             }
 
-            [cite_start]// Comparación de llaves alfabéticas únicas [cite: 205]
+            // Comparación de llaves alfabéticas únicas [cite: 205]
             int comparacion = string.Compare(id, nodoActual.SatelliteId, StringComparison.OrdinalIgnoreCase);
 
             if (comparacion < 0)
@@ -131,31 +130,31 @@ namespace OrbitNet.Models.TDAs
             // Actualización de alturas al regresar de la recursividad
             nodoActual.Height = 1 + Maximo(ObtenerAltura(nodoActual.LeftChild), ObtenerAltura(nodoActual.RightChild));
             
-            [cite_start]// Evaluación del factor de balanceo riguroso [cite: 52, 210]
+           // Evaluación del factor de balanceo riguroso [cite: 52, 210]
             int fe = ObtenerFactorEquilibrio(nodoActual);
 
             // --- CASOS DE RE-BALANCEO MEDIANTE ROTACIONES MANUALES ---
 
-            [cite_start]// Caso LL: Desbalance Izquierdo Puro [cite: 214, 217]
+           // Caso LL: Desbalance Izquierdo Puro [cite: 214, 217]
             if (fe < -1 && string.Compare(id, nodoActual.LeftChild?.SatelliteId, StringComparison.OrdinalIgnoreCase) < 0)
             {
                 return RotacionDerecha(nodoActual);
             }
 
-            [cite_start]// Caso RR: Desbalance Derecho Puro [cite: 213, 219]
+            // Caso RR: Desbalance Derecho Puro [cite: 213, 219]
             if (fe > 1 && string.Compare(id, nodoActual.RightChild?.SatelliteId, StringComparison.OrdinalIgnoreCase) > 0)
             {
                 return RotacionIzquierda(nodoActual);
             }
 
-            [cite_start]// Caso LR: Zig-Zag Izquierda-Derecha (Rotación doble) [cite: 215]
+            // Caso LR: Zig-Zag Izquierda-Derecha (Rotación doble) [cite: 215]
             if (fe < -1 && string.Compare(id, nodoActual.LeftChild?.SatelliteId, StringComparison.OrdinalIgnoreCase) > 0)
             {
                 nodoActual.LeftChild = RotacionIzquierda(nodoActual.LeftChild);
                 return RotacionDerecha(nodoActual);
             }
 
-            [cite_start]// Caso RL: Zig-Zag Derecha-Izquierda (Rotación doble) [cite: 216]
+            // Caso RL: Zig-Zag Derecha-Izquierda (Rotación doble) [cite: 216]
             if (fe > 1 && string.Compare(id, nodoActual.RightChild?.SatelliteId, StringComparison.OrdinalIgnoreCase) < 0)
             {
                 nodoActual.RightChild = RotacionDerecha(nodoActual.RightChild);
@@ -166,7 +165,7 @@ namespace OrbitNet.Models.TDAs
         }
 
         // ==========================================================
-        [cite_start]// OPERACIÓN PRINCIPAL: BÚSQUEDA EN TIEMPO O(log n) [cite: 203]
+        // OPERACIÓN PRINCIPAL: BÚSQUEDA EN TIEMPO O(log n) [cite: 203]
         // ==========================================================
 
         public AvlNode? Buscar(string id)
