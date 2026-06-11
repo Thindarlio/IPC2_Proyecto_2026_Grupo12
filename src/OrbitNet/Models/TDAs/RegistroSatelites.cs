@@ -6,6 +6,7 @@ namespace OrbitNet.Models.TDAs
     
     public class RegistroSatelites
     {
+        // Puntero raíz del árbol que apunta al primer nodo en el Heap de la RAM [cite: 42]
         private AvlNode? raiz;
         private int conteo;
 
@@ -38,7 +39,7 @@ namespace OrbitNet.Models.TDAs
         private int ObtenerFactorEquilibrio(AvlNode? nodo)
         {
             if (nodo == null) return 0;
-            [cite_start]// Fórmula estricta dictada por el enunciado: FE = H_der - H_izq [cite: 210]
+            // Fórmula estricta dictada por el enunciado: FE = H_der - H_izq [cite: 210]
             return ObtenerAltura(nodo.RightChild) - ObtenerAltura(nodo.LeftChild);
         }
 
@@ -103,7 +104,7 @@ namespace OrbitNet.Models.TDAs
 
         private AvlNode? InsertarRecursivo(AvlNode? nodoActual, string id, string nombre, double frecuencia)
         {
-            [cite_start]// Si el puntero alcanza la nada, creamos el nuevo nodo de forma dinámica [cite: 42]
+           // Si el puntero alcanza la nada, creamos el nuevo nodo de forma dinámica [cite: 42]
             if (nodoActual == null)
             {
                 conteo++;
@@ -123,14 +124,14 @@ namespace OrbitNet.Models.TDAs
             }
             else
             {
-                [cite_start]// Previene colisión o duplicados en el catálogo global [cite: 198, 202]
+                // Previene colisión o duplicados en el catálogo global [cite: 198, 202]
                 throw new Exception($"El Satélite con ID '{id}' ya existe en el catálogo global.");
             }
 
             // Actualización de alturas al regresar de la recursividad
             nodoActual.Height = 1 + Maximo(ObtenerAltura(nodoActual.LeftChild), ObtenerAltura(nodoActual.RightChild));
             
-           // Evaluación del factor de balanceo riguroso [cite: 52, 210]
+            // Evaluación del factor de balanceo riguroso [cite: 52, 210]
             int fe = ObtenerFactorEquilibrio(nodoActual);
 
             // --- CASOS DE RE-BALANCEO MEDIANTE ROTACIONES MANUALES ---

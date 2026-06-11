@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "c:\\Users\\daniv\\IPC2_Proyecto_2026_Grupo12\\src\\OrbitNet\\OrbitNet.csproj",
+      "projectUniqueName": "C:\\Users\\daniv\\IPC2_Proyecto_2026_Grupo12\\src\\OrbitNet\\OrbitNet.csproj",
       "projectName": "OrbitNet",
-      "projectPath": "c:\\Users\\daniv\\IPC2_Proyecto_2026_Grupo12\\src\\OrbitNet\\OrbitNet.csproj",
+      "projectPath": "C:\\Users\\daniv\\IPC2_Proyecto_2026_Grupo12\\src\\OrbitNet\\OrbitNet.csproj",
       "packagesPath": "C:\\Users\\daniv\\.nuget\\packages\\",
-      "outputPath": "c:\\Users\\daniv\\IPC2_Proyecto_2026_Grupo12\\src\\OrbitNet\\obj\\",
+      "outputPath": "C:\\Users\\daniv\\IPC2_Proyecto_2026_Grupo12\\src\\OrbitNet\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\daniv\\AppData\\Roaming\\NuGet\\NuGet.Config"

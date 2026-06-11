@@ -1,53 +1,45 @@
 using OrbitNet.Models.Interfaces;
 using OrbitNet.Models.Nodes;
+using System;
 
 namespace OrbitNet.Models.TDAs;
 
 public class SparseMatrix : IAbstractCollection
 {
-    // se usa _ para campos privados, y mayúscula para propiedades públicas
-
-
-    // ========= CAMPOS ======== 
+    // ========= CAMPOS PRIVADOS ======== 
     private readonly int _maxSatelites;     // Tamaño máximo configurable
-    private MatrixNode[] _satelites;        // Arreglo fijo
-    private int _contadorSatelites;         // Contador actual
+    private MatrixNode?[] _satelites;       // Arreglo fijo de referencias en RAM
+    private int _contadorSatelites;         // Contador actual manual
 
-    private HeaderNode _rowHeaders;
-    private HeaderNode _colHeaders;
+    private HeaderNode? _rowHeaders;
+    private HeaderNode? _colHeaders;
 
-    // ======== CONSTRUCTORES =======
-
-    /// <summary>
-    /// Constructor con tamaño personalizado
-    /// </summary>
-    /// <param name="maxSatelites">Número máximo de satélites (default: 1000)</param>
+    // ======== CONSTRUCTOR =======
     public SparseMatrix(int maxSatelites = 1000)
     {
         _maxSatelites = maxSatelites;
-        _satelites = new MatrixNode[_maxSatelites];
+        _satelites = new MatrixNode?[_maxSatelites]; 
         _contadorSatelites = 0;
         _rowHeaders = null;
         _colHeaders = null;
     }
 
-    // PROPIEDADES
+    // PROPIEDADES (Implementación obligatoria de tu interfaz de auditoría)
     public int Count => _contadorSatelites;
     public bool IsEmpty => _contadorSatelites == 0;
-    public int MaxCapacity => _maxSatelites;  // Para saber el máximo
+    public int MaxCapacity => _maxSatelites;  
 
     //============ MÉTODOS PÚBLICOS =========== 
 
     public void Insert(int row, int col, string id, string name, string ipAddress, string nodeType, string? extraData)
     {
-        // Validar que no esté lleno
         if (_contadorSatelites >= _maxSatelites)
             throw new InvalidOperationException($"No se pueden agregar más satélites. Máximo: {_maxSatelites}");
 
         if (Search(row, col) != null)
             throw new InvalidOperationException($"Ya existe satélite en ({row},{col})");
 
-        if (!IsValidSatelliteId(id) && !id.StartsWith("ANT"))  // ANT también es válido
+        if (!IsValidSatelliteId(id) && !id.StartsWith("ANT", StringComparison.OrdinalIgnoreCase))  
             throw new ArgumentException($"ID inválido: {id}");
 
         if (!IsValidIpAddress(ipAddress))
@@ -64,14 +56,13 @@ public class SparseMatrix : IAbstractCollection
         _contadorSatelites++;
     }
 
-    // Método de compatibilidad para código que manda null como extraData
     public void Insert(int row, int col, string id, string name, string ipAddress, string nodeType)
     {
         Insert(row, col, id, name, ipAddress, nodeType, null);
     }
+
     public MatrixNode? Search(int row, int col)
     {
-
         HeaderNode? rowHeader = FindRowHeader(row);
         if (rowHeader == null || rowHeader.Access == null)
             return null;
@@ -86,7 +77,7 @@ public class SparseMatrix : IAbstractCollection
         return null;
     }
 
-    public MatrixNode SearchByIndex(int index)
+    public MatrixNode? SearchByIndex(int index)
     {
         if (index < 0 || index >= _contadorSatelites)
             return null;
@@ -95,16 +86,16 @@ public class SparseMatrix : IAbstractCollection
 
     public void Delete(int row, int col)
     {
-        MatrixNode nodeToDelete = Search(row, col);
+        MatrixNode? nodeToDelete = Search(row, col);
         if (nodeToDelete == null)
             throw new InvalidOperationException($"No existe satélite en ({row},{col})");
 
-        // Reconectar punteros horizontales
+        // Reconectar punteros horizontales en RAM
         if (nodeToDelete.Left != null)
             nodeToDelete.Left.Right = nodeToDelete.Right;
         else
         {
-            HeaderNode rowHeader = FindRowHeader(row);
+            HeaderNode? rowHeader = FindRowHeader(row);
             if (rowHeader != null)
                 rowHeader.Access = nodeToDelete.Right;
         }
@@ -112,12 +103,12 @@ public class SparseMatrix : IAbstractCollection
         if (nodeToDelete.Right != null)
             nodeToDelete.Right.Left = nodeToDelete.Left;
 
-        // Reconectar punteros verticales
+        // Reconectar punteros verticales en RAM
         if (nodeToDelete.Up != null)
             nodeToDelete.Up.Down = nodeToDelete.Down;
         else
         {
-            HeaderNode colHeader = FindColHeader(col);
+            HeaderNode? colHeader = FindColHeader(col);
             if (colHeader != null)
                 colHeader.Access = nodeToDelete.Down;
         }
@@ -125,7 +116,7 @@ public class SparseMatrix : IAbstractCollection
         if (nodeToDelete.Down != null)
             nodeToDelete.Down.Up = nodeToDelete.Up;
 
-        // Eliminar del arreglo
+        // Eliminar del arreglo interno
         int indexToRemove = -1;
         for (int i = 0; i < _contadorSatelites; i++)
         {
@@ -142,7 +133,7 @@ public class SparseMatrix : IAbstractCollection
             {
                 _satelites[i] = _satelites[i + 1];
             }
-            _satelites[_contadorSatelites - 1] = null;
+            _satelites[_contadorSatelites - 1] = null; 
             _contadorSatelites--;
         }
     }
@@ -159,9 +150,9 @@ public class SparseMatrix : IAbstractCollection
         _contadorSatelites = 0;
     }
 
-    public MatrixNode[] GetAllSatellites()
+    public MatrixNode?[] GetAllSatellites()
     {
-        MatrixNode[] result = new MatrixNode[_contadorSatelites];
+        MatrixNode?[] result = new MatrixNode?[_contadorSatelites];
         for (int i = 0; i < _contadorSatelites; i++)
         {
             result[i] = _satelites[i];
@@ -169,7 +160,65 @@ public class SparseMatrix : IAbstractCollection
         return result;
     }
 
-    // MÉTODOS PRIVADOS (matriz dispersa)
+    // ==========================================================
+    // RECORRIDOS MANUALES REFACTORIZADOS (CERO GENERIC)
+    // ==========================================================
+
+
+    public MatrixNode[] GetAllNodes()
+    {
+        MatrixNode[] temporal = new MatrixNode[_contadorSatelites];
+        int indice = 0;
+
+        HeaderNode? rowCurrent = _rowHeaders;
+        while (rowCurrent != null)
+        {
+            MatrixNode? nodeCurrent = rowCurrent.Access;
+            while (nodeCurrent != null)
+            {
+                temporal[indice] = nodeCurrent;
+                indice++;
+                nodeCurrent = nodeCurrent.Right;
+            }
+            rowCurrent = rowCurrent.Next;
+        }
+        return temporal;
+    }
+
+    public MatrixNode[] GetNodesByType(string nodeType)
+    {
+        int totalTipo = CountByType(nodeType);
+        MatrixNode[] resultado = new MatrixNode[totalTipo];
+        int indice = 0;
+
+        MatrixNode[] todos = GetAllNodes();
+        for (int i = 0; i < todos.Length; i++)
+        {
+            if (todos[i].NodeType == nodeType)
+            {
+                resultado[indice] = todos[i];
+                indice++;
+            }
+        }
+        return resultado;
+    }
+
+
+    public int CountByType(string nodeType)
+    {
+        int count = 0;
+        MatrixNode[] todos = GetAllNodes();
+        for (int i = 0; i < todos.Length; i++)
+        {
+            if (todos[i].NodeType == nodeType)
+                count++;
+        }
+        return count;
+    }
+
+    // ==========================================================
+    // MÉTODOS PRIVADOS DE CABECERAS Y ENLACES
+    // ==========================================================
 
     private void InsertRowHeader(int row)
     {
@@ -180,12 +229,12 @@ public class SparseMatrix : IAbstractCollection
         }
 
         HeaderNode current = _rowHeaders;
-        HeaderNode previous = null;
+        HeaderNode? previous = null;
 
         while (current != null && current.Index < row)
         {
             previous = current;
-            current = current.Next;
+            current = current.Next!;
         }
 
         if (current != null && current.Index == row)
@@ -214,12 +263,12 @@ public class SparseMatrix : IAbstractCollection
         }
 
         HeaderNode current = _colHeaders;
-        HeaderNode previous = null;
+        HeaderNode? previous = null;
 
         while (current != null && current.Index < col)
         {
             previous = current;
-            current = current.Next;
+            current = current.Next!;
         }
 
         if (current != null && current.Index == col)
@@ -241,7 +290,7 @@ public class SparseMatrix : IAbstractCollection
 
     private void InsertInRow(MatrixNode newNode)
     {
-        HeaderNode rowHeader = FindRowHeader(newNode.Row);
+        HeaderNode? rowHeader = FindRowHeader(newNode.Row);
         if (rowHeader == null) return;
 
         if (rowHeader.Access == null)
@@ -250,8 +299,8 @@ public class SparseMatrix : IAbstractCollection
             return;
         }
 
-        MatrixNode current = rowHeader.Access;
-        MatrixNode previous = null;
+        MatrixNode? current = rowHeader.Access;
+        MatrixNode? previous = null;
 
         while (current != null && current.Col < newNode.Col)
         {
@@ -277,7 +326,7 @@ public class SparseMatrix : IAbstractCollection
 
     private void InsertInColumn(MatrixNode newNode)
     {
-        HeaderNode colHeader = FindColHeader(newNode.Col);
+        HeaderNode? colHeader = FindColHeader(newNode.Col);
         if (colHeader == null) return;
 
         if (colHeader.Access == null)
@@ -286,8 +335,8 @@ public class SparseMatrix : IAbstractCollection
             return;
         }
 
-        MatrixNode current = colHeader.Access;
-        MatrixNode previous = null;
+        MatrixNode? current = colHeader.Access;
+        MatrixNode? previous = null;
 
         while (current != null && current.Row < newNode.Row)
         {
@@ -311,25 +360,22 @@ public class SparseMatrix : IAbstractCollection
         }
     }
 
-    private HeaderNode FindRowHeader(int row)
+    private HeaderNode? FindRowHeader(int row)
     {
-        HeaderNode current = _rowHeaders;
+        HeaderNode? current = _rowHeaders;
         while (current != null && current.Index != row)
             current = current.Next;
         return current;
     }
 
-    private HeaderNode FindColHeader(int col)
+    private HeaderNode? FindColHeader(int col)
     {
-        HeaderNode current = _colHeaders;
+        HeaderNode? current = _colHeaders;
         while (current != null && current.Index != col)
             current = current.Next;
         return current;
     }
 
-
-    // MÉTODOS DE VALIDACIÓN: para ip y id de satélite 
-    // Valida formato SAT-XXX-1234 y IPv4 (0-255)
     private bool IsValidSatelliteId(string id)
     {
         if (string.IsNullOrEmpty(id)) return false;
@@ -341,43 +387,5 @@ public class SparseMatrix : IAbstractCollection
         if (string.IsNullOrEmpty(ip)) return false;
         return System.Text.RegularExpressions.Regex.IsMatch(ip,
             @"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
-    }
-
-
-    public IEnumerable<MatrixNode> GetAllNodes()
-    {
-        HeaderNode? rowCurrent = _rowHeaders;
-        while (rowCurrent != null)
-        {
-            MatrixNode? nodeCurrent = rowCurrent.Access;
-            while (nodeCurrent != null)
-            {
-                yield return nodeCurrent;
-                nodeCurrent = nodeCurrent.Right;
-            }
-            rowCurrent = rowCurrent.Next;
-        }
-    }
-
-    // ========== MÉTODO PARA OBTENER NODOS POR TIPO ==========
-    public IEnumerable<MatrixNode> GetNodesByType(string nodeType)
-    {
-        foreach (var node in GetAllNodes())
-        {
-            if (node.NodeType == nodeType)
-                yield return node;
-        }
-    }
-
-    // ========== MÉTODO PARA CONTAR POR TIPO ==========
-    public int CountByType(string nodeType)
-    {
-        int count = 0;
-        foreach (var node in GetAllNodes())
-        {
-            if (node.NodeType == nodeType)
-                count++;
-        }
-        return count;
     }
 }

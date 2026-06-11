@@ -1,14 +1,27 @@
-namespace OrbitNet.Models.Nodes
-{
-    public class LogNode
-    {
-        public LogDato Dato { get; set; }
-        public LogNode? Siguiente { get; set; }
+using System;
+using OrbitNet.Models;
 
-        public LogNode(LogDato log)
+namespace OrbitNet.Models.TDAs
+{
+    
+    public class LogDato
+    {
+        public DateTime FechaHora { get; }
+        public string Tipo { get; } //INFO, ALERTA, ERROR
+
+        public string Mensaje { get; }
+
+        public LogDato(string tipo, string mensaje)
         {
-            Dato = log;
-            Siguiente = null;
+            FechaHora = DateTime.Now;
+            Tipo = tipo;
+            Mensaje = mensaje;
+        }
+
+        public string ObtenerDescripcion()
+        {
+            string tag = Tipo == "INFO" ? "OK" : "FAIL";
+            return $"{FechaHora} | {Tipo,-5} ({tag}) | {Mensaje}";
         }
     }
 }
