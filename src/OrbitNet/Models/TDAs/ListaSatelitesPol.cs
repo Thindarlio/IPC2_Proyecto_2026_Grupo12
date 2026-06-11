@@ -9,14 +9,14 @@ namespace OrbitNet.Models.TDAs
     {
         private SatelitePolNode? Cabeza;
         private SatelitePolNode? Cola;
-        public int Tamano { get; private set; }
-        public bool EstaVacia => Cabeza == null;
+        public int Count { get; private set; }
+        public bool IsEmpty => Cabeza == null;
 
         public ListaSatelitesPol()
         {
             Cabeza = null;
             Cola = null;
-            Tamano = 0;
+            Count = 0;
         }
 
         //Inserta al final un nuevo registro
@@ -24,7 +24,7 @@ namespace OrbitNet.Models.TDAs
         {
             SatelitePolNode NuevoNodo = new SatelitePolNode (polar);
             
-            if(EstaVacia)
+            if(IsEmpty)
             {
                 Cabeza = NuevoNodo;
                 Cola = NuevoNodo;
@@ -34,7 +34,7 @@ namespace OrbitNet.Models.TDAs
                 Cola!.Siguiente = NuevoNodo;
                 Cola = NuevoNodo;
             }
-            Tamano++;
+            Count++;
         }
 
         //Para recorrer en el Commit
@@ -46,7 +46,7 @@ namespace OrbitNet.Models.TDAs
         {
             Cabeza = null;
             Cola = null;
-            Tamano = 0;
+            Count = 0;
         }
     }
 }

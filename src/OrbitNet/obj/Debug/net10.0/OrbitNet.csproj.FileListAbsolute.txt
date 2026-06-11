@@ -1,0 +1,9 @@
+C:\Users\Systems\Documents\IPC2_Proyecto_2026_Grupo12\src\OrbitNet\obj\Debug\net10.0\rpswa.dswa.cache.json
+C:\Users\Systems\Documents\IPC2_Proyecto_2026_Grupo12\src\OrbitNet\obj\Debug\net10.0\OrbitNet.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Systems\Documents\IPC2_Proyecto_2026_Grupo12\src\OrbitNet\obj\Debug\net10.0\OrbitNet.AssemblyInfoInputs.cache
+C:\Users\Systems\Documents\IPC2_Proyecto_2026_Grupo12\src\OrbitNet\obj\Debug\net10.0\OrbitNet.AssemblyInfo.cs
+C:\Users\Systems\Documents\IPC2_Proyecto_2026_Grupo12\src\OrbitNet\obj\Debug\net10.0\OrbitNet.csproj.CoreCompileInputs.cache
+C:\Users\Systems\Documents\IPC2_Proyecto_2026_Grupo12\src\OrbitNet\obj\Debug\net10.0\OrbitNet.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\Systems\Documents\IPC2_Proyecto_2026_Grupo12\src\OrbitNet\obj\Debug\net10.0\OrbitNet.RazorAssemblyInfo.cache
+C:\Users\Systems\Documents\IPC2_Proyecto_2026_Grupo12\src\OrbitNet\obj\Debug\net10.0\OrbitNet.RazorAssemblyInfo.cs
+C:\Users\Systems\Documents\IPC2_Proyecto_2026_Grupo12\src\OrbitNet\obj\Debug\net10.0\OrbitNet.sourcelink.json

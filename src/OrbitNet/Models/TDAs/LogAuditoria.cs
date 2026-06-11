@@ -9,14 +9,14 @@ namespace OrbitNet.Models.TDAs
     {
         private LogNode? Cabeza;
         private LogNode? Cola;
-        public int Tamano { get; private set; }
-        public bool EstaVacia => Cabeza == null;
+        public int Count { get; private set; }
+        public bool IsEmpty => Cabeza == null;
 
         public LogAuditoria()
         {
             Cabeza = null;
             Cola = null;
-            Tamano = 0;
+            Count = 0;
         }
 
         //Inserta al final un nuevo registro
@@ -34,7 +34,7 @@ namespace OrbitNet.Models.TDAs
                 Cola!.Siguiente = NuevoNodo;
                 Cola = NuevoNodo;
             }
-            Tamano++;
+            Count++;
         }
 
         public void Registrar(string tipo, string mensaje)
@@ -71,7 +71,7 @@ namespace OrbitNet.Models.TDAs
         {
             Cabeza = null;
             Cola = null;
-            Tamano = 0;
+            Count = 0;
         }
     }
 }
