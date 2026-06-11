@@ -4,7 +4,7 @@ using OrbitNet.Models;
 using OrbitNet.Models.TDAs;
 using OrbitNet.Models.Nodes;
 using Microsoft.AspNetCore.Http;
-using System.IO;
+using System.IO; //leer archivos
 using System.Xml;
 using System.Text.RegularExpressions;
 using System.ComponentModel.Design;
@@ -15,7 +15,6 @@ namespace OrbitNet.Controllers
     public class HomeController : Controller
     {
         private static readonly LogAuditoria bitacoraAuditoria = new LogAuditoria();
-
         // CAMBIO: Reemplazo de 3 listas por Matriz Dispersa
         private static readonly SparseMatrix redSatelital = new SparseMatrix(1000);
 
@@ -27,7 +26,9 @@ namespace OrbitNet.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            if(bitacoraAuditoria.EstaVacia)
+            //Inicializació de logs básicos de arranque si la bitácora está vacía
+
+            if(bitacoraAuditoria.IsEmpty)
             {
                 bitacoraAuditoria.Registrar("INFO", "Sistema de simulación espacial inicializado correctamente");
                 bitacoraAuditoria.Registrar("INFO", "Esperando archivo XML de configuración...");
@@ -42,6 +43,7 @@ namespace OrbitNet.Controllers
             return View(viewModel);
         }
 
+        //-----> CARGAR XML <----------
         [HttpPost]
         public IActionResult CargarXml(IFormFile archivoXml)
         {
@@ -69,6 +71,7 @@ namespace OrbitNet.Controllers
 
             try
             {
+                //Mitigación de Vulnerabilidades XXE
                 XmlReaderSettings settings = new XmlReaderSettings
                 {
                     DtdProcessing = DtdProcessing.Prohibit,
@@ -82,6 +85,7 @@ namespace OrbitNet.Controllers
                     doc.Load(reader);
 
                     // Validación Satélites Ecuatoriales
+
                     XmlNodeList satelitesEcua = doc.SelectNodes("/orbitnet/constelaciones_ecuatoriales/satelite")!;
                     if(satelitesEcua.Count == 0)
                     {
@@ -132,7 +136,7 @@ namespace OrbitNet.Controllers
                         if(polares.Count == 0)
                         {
                             transaccionExitosa = false;
-                            causaFallo = "No se encontraron órbitas polares bajo '/orbitnet/orbitas_polares/polar'.";   
+                            causaFallo = "No se encontraron órbitas polares bajo '/orbitnet/orbitas_polares/polar'.";
                         }
                         else
                         {
@@ -140,6 +144,7 @@ namespace OrbitNet.Controllers
                             {
                                 string? polarId = polar.Attributes?["id"]?.Value?.Trim();
 
+                               
                                 if (string.IsNullOrWhiteSpace(polarId))
                                 {
                                     transaccionExitosa = false;
@@ -147,13 +152,23 @@ namespace OrbitNet.Controllers
                                     break;
                                 }
 
-                                XmlNodeList satelitesPol = polar.SelectNodes("satelite")!;
+                                XmlNodeList satelitesPol = polar.SelectNodes("child::satelite")!;
 
+                                 bitacoraAuditoria.Registrar("INFO",
+                                $"DEBUG POLAR → polarId='{polarId}' satelites encontrados={satelitesPol.Count}");
                                 foreach (XmlNode nodo in satelitesPol)
                                 {
-                                    string? sateliteId = nodo.Attributes?["id"]?.Value?.Trim();
+                                     bitacoraAuditoria.Registrar("INFO",
+                                    $"DEBUG NODO → tipo='{nodo.NodeType}' nombre='{nodo.Name}' " +
+                                    $"atributos={nodo.Attributes?.Count ?? 0} " +
+                                    $"xml='{nodo.OuterXml}'");
+                                    string? sateliteId = nodo.Attributes["id"]?.Value?.Trim();
                                     string? nombre = nodo.SelectSingleNode("nombre")?.InnerText?.Trim();
                                     string? frecuencia = nodo.SelectSingleNode("frecuencia")?.InnerText?.Trim();
+                                     // ← Agrega esto temporalmente para ver qué lee
+                                    bitacoraAuditoria.Registrar("INFO", 
+                                    $"DEBUG POL → sateliteId='{sateliteId}' nombre='{nombre}' frecuencia='{frecuencia}'");
+
 
                                     if (string.IsNullOrWhiteSpace(sateliteId) || string.IsNullOrWhiteSpace(nombre))
                                     {
@@ -172,7 +187,7 @@ namespace OrbitNet.Controllers
                                     // CAMBIO: Insertar en matriz temporal en lugar de tempPol
                                     int fila = CalcularFila(sateliteId);
                                     int columna = CalcularColumna(sateliteId);
-                                    tempMatrix.Insert(fila, columna, sateliteId, nombre, "", "POL", frecuencia ?? "");
+                                    tempMatrix.Insert(fila, columna, sateliteId, nombre, "0.0.0.0", "POL", frecuencia ?? "");
                                     contadorInserciones++;
                                 }
 
@@ -277,7 +292,7 @@ namespace OrbitNet.Controllers
         [HttpPost]
         public IActionResult LimpiarLogs()
         {
-            bitacoraAuditoria.Limpiar();
+            bitacoraAuditoria.Clear();
             bitacoraAuditoria.Registrar("INFO", "Se ejecutó la purga del historial de auditoría.");
             return RedirectToAction("Index");
         }

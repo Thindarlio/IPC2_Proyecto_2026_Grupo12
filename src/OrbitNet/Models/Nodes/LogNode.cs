@@ -1,3 +1,5 @@
+using OrbitNet.Models.TDAs;
+
 namespace OrbitNet.Models.Nodes
 {
     public class LogNode
