@@ -42,7 +42,7 @@ namespace OrbitNet.Models.TDAs
         {
             return Cabeza;
         }
-        public void Limpiar()
+        public void Clear()
         {
             Cabeza = null;
             Cola = null;

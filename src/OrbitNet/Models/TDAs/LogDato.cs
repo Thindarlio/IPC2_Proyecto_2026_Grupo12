@@ -1,3 +1,6 @@
+using System;
+using OrbitNet.Models;
+
 namespace OrbitNet.Models.TDAs
 {
     

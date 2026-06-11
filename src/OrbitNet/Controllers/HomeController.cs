@@ -28,7 +28,7 @@ namespace OrbitNet.Controllers
         {
             //Inicializació de logs básicos de arranque si la bitácora está vacía
 
-            if(bitacoraAuditoria.EstaVacia)
+            if(bitacoraAuditoria.IsEmpty)
             {
                 bitacoraAuditoria.Registrar("INFO", "Sistema de simulación espacial inicializado correctamente");
                 bitacoraAuditoria.Registrar("INFO", "Esperando archivo XML de configuración...");
@@ -144,6 +144,7 @@ namespace OrbitNet.Controllers
                             {
                                 string? polarId = polar.Attributes?["id"]?.Value?.Trim();
 
+                               
                                 if (string.IsNullOrWhiteSpace(polarId))
                                 {
                                     transaccionExitosa = false;
@@ -151,13 +152,23 @@ namespace OrbitNet.Controllers
                                     break;
                                 }
 
-                                XmlNodeList satelitesPol = polar.SelectNodes("satelite")!;
+                                XmlNodeList satelitesPol = polar.SelectNodes("child::satelite")!;
 
+                                 bitacoraAuditoria.Registrar("INFO",
+                                $"DEBUG POLAR → polarId='{polarId}' satelites encontrados={satelitesPol.Count}");
                                 foreach (XmlNode nodo in satelitesPol)
                                 {
-                                    string? sateliteId = nodo.Attributes?["id"]?.Value?.Trim();
+                                     bitacoraAuditoria.Registrar("INFO",
+                                    $"DEBUG NODO → tipo='{nodo.NodeType}' nombre='{nodo.Name}' " +
+                                    $"atributos={nodo.Attributes?.Count ?? 0} " +
+                                    $"xml='{nodo.OuterXml}'");
+                                    string? sateliteId = nodo.Attributes["id"]?.Value?.Trim();
                                     string? nombre = nodo.SelectSingleNode("nombre")?.InnerText?.Trim();
                                     string? frecuencia = nodo.SelectSingleNode("frecuencia")?.InnerText?.Trim();
+                                     // ← Agrega esto temporalmente para ver qué lee
+                                    bitacoraAuditoria.Registrar("INFO", 
+                                    $"DEBUG POL → sateliteId='{sateliteId}' nombre='{nombre}' frecuencia='{frecuencia}'");
+
 
                                     if (string.IsNullOrWhiteSpace(sateliteId) || string.IsNullOrWhiteSpace(nombre))
                                     {
@@ -176,7 +187,7 @@ namespace OrbitNet.Controllers
                                     // CAMBIO: Insertar en matriz temporal en lugar de tempPol
                                     int fila = CalcularFila(sateliteId);
                                     int columna = CalcularColumna(sateliteId);
-                                    tempMatrix.Insert(fila, columna, sateliteId, nombre, "", "POL", frecuencia ?? "");
+                                    tempMatrix.Insert(fila, columna, sateliteId, nombre, "0.0.0.0", "POL", frecuencia ?? "");
                                     contadorInserciones++;
                                 }
 
@@ -281,7 +292,7 @@ namespace OrbitNet.Controllers
         [HttpPost]
         public IActionResult LimpiarLogs()
         {
-            bitacoraAuditoria.Limpiar();
+            bitacoraAuditoria.Clear();
             bitacoraAuditoria.Registrar("INFO", "Se ejecutó la purga del historial de auditoría.");
             return RedirectToAction("Index");
         }

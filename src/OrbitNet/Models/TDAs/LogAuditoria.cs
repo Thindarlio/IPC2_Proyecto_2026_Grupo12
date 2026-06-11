@@ -24,7 +24,7 @@ namespace OrbitNet.Models.TDAs
         {
             LogNode NuevoNodo = new LogNode(log);
             
-            if(EstaVacia)
+            if(IsEmpty)
             {
                 Cabeza = NuevoNodo;
                 Cola = NuevoNodo;
@@ -67,7 +67,7 @@ namespace OrbitNet.Models.TDAs
             return Cabeza;
         }
 
-        public void Limpiar()
+        public void Clear()
         {
             Cabeza = null;
             Cola = null;
