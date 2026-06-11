@@ -1,7 +1,7 @@
 using System.Text.RegularExpressions;
 using OrbitNet.Models;
 using OrbitNet.Models.Nodes;
-using OrbitNet.Models.Infertaces;
+using OrbitNet.Models.Interfaces;
 namespace OrbitNet.Models.TDAs
 
 {

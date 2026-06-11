@@ -15,19 +15,10 @@ namespace OrbitNet.Controllers
     public class HomeController : Controller
     {
         private static readonly LogAuditoria bitacoraAuditoria = new LogAuditoria();
+        // CAMBIO: Reemplazo de 3 listas por Matriz Dispersa
+        private static readonly SparseMatrix redSatelital = new SparseMatrix(1000);
 
-        // Listas permanentes temporales hasta que el Integrante 1 entregue RedSatelitalPlano
-        private static readonly ListaSatelitesEcu baseDatosEcu = new ListaSatelitesEcu();
-        private static readonly ListaSatelitesPol baseDatosPol = new ListaSatelitesPol();
-        private static readonly ListaAntenas baseDatosAnt = new ListaAntenas();
-
-// TODO FASE 2 - Integrante 1: Reemplazar las 3 listas de arriba con RedSatelitalPlano
-// private static readonly RedSatelitalPlano redSatelital = new RedSatelitalPlano();
-
-// TODO FASE 2 - Integrante 2: Agregar RegistroSatelites (AVL) cuando esté listo
-// private static readonly RegistroSatelites registroAvl = new RegistroSatelites();
-
-        //Expresiones Regulares Oficiales según el Enunciado del Proyecto
+        //Expresiones Regulares Oficiales
         private const string PatronIdSatelite = @"^SAT-(ECU|POL)-\d{4}$";
         private const string PatronIpv4 = @"^(?:(?:25[0-5]|2[0-4]\d|[01]?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d?\d)$";
         private const string PatronCoordenadas = @"^-?\d{1,2}\.\d{4,6},-?\d{1,3}\.\d{4,6}$";
@@ -36,20 +27,18 @@ namespace OrbitNet.Controllers
         public IActionResult Index()
         {
             //Inicializació de logs básicos de arranque si la bitácora está vacía
+
             if(bitacoraAuditoria.EstaVacia)
             {
                 bitacoraAuditoria.Registrar("INFO", "Sistema de simulación espacial inicializado correctamente");
                 bitacoraAuditoria.Registrar("INFO", "Esperando archivo XML de configuración...");
             }
 
+            // CAMBIO: ViewModel ahora usa SparseMatrix en lugar de 3 listas
             var viewModel = new DashboardViewModel
             {
-                SatelitesEcu = baseDatosEcu,
-                SatelitesPol = baseDatosPol,
-                Antenas = baseDatosAnt,
+                RedSatelital = redSatelital,
                 Logs = bitacoraAuditoria
-                // TODO FASE 2 - Integrante 1: Agregar RedSatelital al ViewModel
-                // RedSatelital = redSatelital
             };
             return View(viewModel);
         }
@@ -58,11 +47,10 @@ namespace OrbitNet.Controllers
         [HttpPost]
         public IActionResult CargarXml(IFormFile archivoXml)
         {
+            // CAMBIO: ViewModel usa SparseMatrix
             var viewModel = new DashboardViewModel
             {
-                SatelitesEcu = baseDatosEcu,
-                SatelitesPol = baseDatosPol,
-                Antenas = baseDatosAnt,
+                RedSatelital = redSatelital,
                 Logs = bitacoraAuditoria
             };
 
@@ -74,21 +62,12 @@ namespace OrbitNet.Controllers
 
             bitacoraAuditoria.Registrar("INFO", $"Iniciando carga de archivo: '{archivoXml.FileName}'");
 
-            //
-            // 1. Instanciación del TDA Temporal para Carga Transaccional (Atómica)
-        // Se acumularán los satélites validados aquí antes de pasarlos a la base de datos principal
-        //EN ESTA PARTE ESTA INCOMPLETA, SE COMPLETARA CUANDO LOS DEMAS INTEGRANTES AGREGUEN LO DEMAS
-        //------------------>PRUEBAS<------------------------------
-        // ── LISTAS TEMPORALES (Patrón Commit/Rollback) ───────────────────
-        // Se acumulan los datos validados aquí antes de pasarlos a los TDAs principales
-        // Cuando los TDAs de los compañeros estén listos, estas listas
-        // temporales se reemplazarán por los TDAs correspondientes
-            ListaSatelitesEcu tempEcu = new ListaSatelitesEcu();
-            ListaSatelitesPol tempPol = new ListaSatelitesPol();
-            ListaAntenas tempAnt = new ListaAntenas();
+            // CAMBIO: Matriz temporal para transacción atómica (reemplaza tempEcu, tempPol, tempAnt)
+            SparseMatrix tempMatrix = new SparseMatrix(1000);
 
-            bool  transaccionExitosa = true;
+            bool transaccionExitosa = true;
             string causaFallo = "";
+            int contadorInserciones = 0;
 
             try
             {
@@ -105,8 +84,8 @@ namespace OrbitNet.Controllers
                     XmlDocument doc = new XmlDocument();
                     doc.Load(reader);
 
-                    // Selección de elementos mediante XPath
-                    //------------->VALIDACIONES PARA SATELITES ECUATORIALES<-------------
+                    // Validación Satélites Ecuatoriales
+
                     XmlNodeList satelitesEcua = doc.SelectNodes("/orbitnet/constelaciones_ecuatoriales/satelite")!;
                     if(satelitesEcua.Count == 0)
                     {
@@ -115,14 +94,12 @@ namespace OrbitNet.Controllers
                     }
                     else
                     {
-                        // 2. Procesamiento de los nodos con validaciones RegEx
                         foreach (XmlNode nodo in satelitesEcua)
                         {
-                            string? id= nodo.Attributes?["id"]?.Value?.Trim();
+                            string? id = nodo.Attributes?["id"]?.Value?.Trim();
                             string? nombre = nodo.SelectSingleNode("nombre")?.InnerText?.Trim();
                             string? enlaceIp = nodo.SelectSingleNode("enlace_ip")?.InnerText?.Trim();
 
-                            // Comprobamos la existencia física de campos
                             if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(nombre) || string.IsNullOrWhiteSpace(enlaceIp))
                             {
                                 transaccionExitosa = false;
@@ -130,39 +107,36 @@ namespace OrbitNet.Controllers
                                 break;
                             }
 
-                            // --- VALIDACIÓN 1 REGEX: ID del Satélite ---
                             if (!Regex.IsMatch(id, PatronIdSatelite))
                             {
                                 transaccionExitosa = false;
-                                causaFallo = $"ID inválido '{id}' en <constelaciones_ecuatoriales>. " +
-                                             $"Formato requerido: SAT-(ECU|POL)-0000.";
+                                causaFallo = $"ID inválido '{id}' en <constelaciones_ecuatoriales>. Formato requerido: SAT-(ECU|POL)-0000.";
                                 break;
                             }
 
-                            // --- VALIDACIÓN 2 REGEX: Dirección IPv4 ---
                             if (!Regex.IsMatch(enlaceIp, PatronIpv4))
                             {
                                 transaccionExitosa = false;
                                 causaFallo = $"El satélite [{id}] contiene una dirección IP inválida: '{enlaceIp}'.";
                                 break;
                             }
-                            //se agrega a la lista temporal si pasa las validaciones de encapsulamiento
-                            //por el momento lo realizare asi ya que estoy utilizando listas no nativas, las cambiare
-                            //cuando se agregue las clases correctas para las listas
-                            tempEcu.InsertarAlFinal(new SateliteEcu(id, nombre, enlaceIp));
+
+                            // CAMBIO: Insertar en matriz temporal en lugar de tempEcu
+                            int fila = CalcularFila(id);
+                            int columna = CalcularColumna(id);
+                            tempMatrix.Insert(fila, columna, id, nombre, enlaceIp, "ECU", null);
+                            contadorInserciones++;
                         }
                     }
 
-                    //------------->VALIDACIONES PARA SATELITES POLARES<-------------
+                    // Validación Satélites Polares
                     if(transaccionExitosa)
                     {
-                        XmlNodeList polares = doc.SelectNodes("/orbitnet/orbitas_polares/polar/satelite")!;
-
+                        XmlNodeList polares = doc.SelectNodes("/orbitnet/orbitas_polares/polar")!;
                         if(polares.Count == 0)
                         {
                             transaccionExitosa = false;
-                            causaFallo = "No se encontraron satélites polares " +
-                                         "bajo '/orbitnet/orbitas_polares/polar/satelite'.";   
+                            causaFallo = "No se encontraron órbitas polares bajo '/orbitnet/orbitas_polares/polar'.";
                         }
                         else
                         {
@@ -173,7 +147,7 @@ namespace OrbitNet.Controllers
                                 if (string.IsNullOrWhiteSpace(polarId))
                                 {
                                     transaccionExitosa = false;
-                                    causaFallo = "Órbita porlar con ID vacío o faltante.";
+                                    causaFallo = "Órbita polar con ID vacío o faltante.";
                                     break;
                                 }
 
@@ -191,19 +165,19 @@ namespace OrbitNet.Controllers
                                         causaFallo = "Satélite polar con campos vacíos o faltantes.";
                                         break;
                                     }
-                                    // --- VALIDACIÓN 1 REGEX: ID del Satélite ---
+
                                     if (!Regex.IsMatch(sateliteId, PatronIdSatelite))
                                     {
                                         transaccionExitosa = false;
-                                        causaFallo = $"ID inválido '{sateliteId}' en <orbitas_polares>. " +
-                                             $"Formato requerido: SAT-(ECU|POL)-0000.";
+                                        causaFallo = $"ID inválido '{sateliteId}' en <orbitas_polares>. Formato requerido: SAT-(ECU|POL)-0000.";
                                         break;
                                     }
 
-                                    //se agrega a la lista temporal si pasa las validaciones de encapsulamiento
-                                //por el momento lo realizare asi ya que estoy utilizando listas no nativas, las cambiare
-                                //cuando se agregue las clases correctas para las listas
-                                tempPol.InsertarAlFinal(new SatelitePolar(polarId, sateliteId, nombre, frecuencia ?? ""));
+                                    // CAMBIO: Insertar en matriz temporal en lugar de tempPol
+                                    int fila = CalcularFila(sateliteId);
+                                    int columna = CalcularColumna(sateliteId);
+                                    tempMatrix.Insert(fila, columna, sateliteId, nombre, "", "POL", frecuencia ?? "");
+                                    contadorInserciones++;
                                 }
 
                                 if(!transaccionExitosa) break;
@@ -211,15 +185,14 @@ namespace OrbitNet.Controllers
                         }
                     }
 
-                    //------------->VALIDACIONES PARA ANTENAS TERRESTRES<-------------
+                    // Validación Antenas Terrestres
                     if(transaccionExitosa)
                     {
                         XmlNodeList antenas = doc.SelectNodes("/orbitnet/antenas_terrestres/antena")!;
                         if(antenas.Count == 0)
                         {
                             transaccionExitosa = false;
-                            causaFallo = "No se encontraron antenas terrestres " +
-                                         "bajo '/orbitnet/antenas_terrestres/antena'.";
+                            causaFallo = "No se encontraron antenas terrestres bajo '/orbitnet/antenas_terrestres/antena'.";
                         }
                         else
                         {
@@ -238,16 +211,13 @@ namespace OrbitNet.Controllers
                                     break;
                                 }
 
-                                //Validar coordenadas
                                 if(!Regex.IsMatch(coords, PatronCoordenadas))
                                 {
                                     transaccionExitosa = false;
-                                    causaFallo = $"Coordenadas inválidas '{coords}' " +
-                                    $"en antena '{id}'. ";
+                                    causaFallo = $"Coordenadas inválidas '{coords}' en antena '{id}'.";
                                     break;
                                 }
 
-                                //Validar IP
                                 if(!Regex.IsMatch(ip, PatronIpv4))
                                 {
                                     transaccionExitosa = false;
@@ -255,8 +225,11 @@ namespace OrbitNet.Controllers
                                     break;
                                 }
 
-                                //Acumular en lista temporal, despues lo tengo que cambiar
-                                tempAnt.InsertarAlFinal(new AntenaDato(id, nombre, coords, ip));
+                                // CAMBIO: Insertar en matriz temporal en lugar de tempAnt
+                                int fila = CalcularFila(id);
+                                int columna = CalcularColumna(id);
+                                tempMatrix.Insert(fila, columna, id, nombre, ip, "ANT", coords);
+                                contadorInserciones++;
                             }
                         }
                     }
@@ -273,79 +246,67 @@ namespace OrbitNet.Controllers
                 causaFallo = $"Error de procesamiento: {ex.Message}";
             }
 
-            // ── RESOLUCIÓN TRANSACCIONAL (Commit / Rollback) ─────────────────
+            // COMMIT / ROLLBACK
             if (transaccionExitosa)
             {
-                // COMMIT: recorrer listas temporales e insertar en listas permanentes
-                // Insertar ecuatoriales
-                SateliteEcuNode? actualEcu = tempEcu.ObtenerCabeza();
-                while (actualEcu != null)
+                // CAMBIO: Copiar matriz temporal a matriz permanente en lugar de las 3 listas
+                foreach (var nodo in tempMatrix.GetAllNodes())
                 {
-                    baseDatosEcu.InsertarAlFinal(actualEcu.Ecuatorial);
-                    actualEcu = actualEcu.Siguiente;
+                    redSatelital.Insert(nodo.Row, nodo.Col, nodo.Id, nodo.Name, nodo.IpAddress, nodo.NodeType, nodo.ExtraData);
                 }
 
-                // Insertar polares
-                SatelitePolNode? actualPol = tempPol.ObtenerCabeza();
-                while (actualPol != null)
-                {
-                    baseDatosPol.InsertarAlFinal(actualPol.Polar);
-                    actualPol = actualPol.Siguiente;
-                }
-                // Insertar antenas
-                AntenaNode? actualAnt = tempAnt.ObtenerCabeza();
-                while (actualAnt != null)
-                {
-                    baseDatosAnt.InsertarAlFinal(actualAnt.Antena);
-                    actualAnt = actualAnt.Siguiente;
-                }
-
-                // TODO FASE 2 - Integrante 1: Reemplazar con RedSatelitalPlano
-                // TODO FASE 2 - Integrante 2: Insertar en RegistroSatelites (AVL)
-
-                string msgExito = $"Transacción completada con éxito. " +
-                $"ECU: {tempEcu.Tamano}, " +
-                $"POL: {tempPol.Tamano}, " +
-                $"Antenas: {tempAnt.Tamano}.";
-
+                string msgExito = $"Transacción completada con éxito. Se insertaron {contadorInserciones} elementos en la matriz dispersa.";
                 bitacoraAuditoria.Registrar("INFO", msgExito);
                 ViewBag.SuccessMessage = msgExito;
-                }
-                else
-                {
-
-                // ROLLBACK: algo falló, no se toca nada
-                string msgFallo = $"Transacción abortada (Rollback). Causa: {causaFallo}. " +
-                                   "La memoria RAM permanece intacta.";
-
+            }
+            else
+            {
+                string msgFallo = $"Transacción abortada (Rollback). Causa: {causaFallo}. La memoria RAM permanece intacta.";
                 bitacoraAuditoria.Registrar("ERROR", msgFallo);
                 ViewBag.ErrorMessage = msgFallo;
-                }
-
-                return View("Index", viewModel);
-            }
-            
-            [HttpPost]
-            public IActionResult Limpiar()
-            {
-                baseDatosEcu.Limpiar();
-                baseDatosPol.Limpiar();
-                baseDatosAnt.Limpiar();
-
-        // TODO FASE 2 - Integrante 1: Reemplazar con redSatelital.Clear();
-            // TODO FASE 2 - Integrante 2: registroAvl.Clear();
-
-                bitacoraAuditoria.Registrar("INFO", "Se ejecutó la purga de datos de la memoria RAM. ");
-                return RedirectToAction("Index");
             }
 
-            //Limpiar logs
-            [HttpPost]
-            public IActionResult LimpiarLogs()
-            {
-                bitacoraAuditoria.Limpiar();
-                bitacoraAuditoria.Registrar("INFO", "Se ejecutó la purga del historial de auditoría.");
-                return RedirectToAction("Index");
-            }
+            return View("Index", viewModel);
         }
+        
+        [HttpPost]
+        public IActionResult Limpiar()
+        {
+            // CAMBIO: Limpiar matriz en lugar de las 3 listas
+            redSatelital.Clear();
+            bitacoraAuditoria.Registrar("INFO", "Se ejecutó la purga de datos de la memoria RAM.");
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public IActionResult LimpiarLogs()
+        {
+            bitacoraAuditoria.Limpiar();
+            bitacoraAuditoria.Registrar("INFO", "Se ejecutó la purga del historial de auditoría.");
+            return RedirectToAction("Index");
+        }
+
+        // CAMBIO: Funciones auxiliares para asignar coordenadas
+        private int CalcularFila(string id)
+        {
+            var match = Regex.Match(id, @"\d+");
+            if (match.Success)
+            {
+                return int.Parse(match.Value);
+            }
+            return Math.Abs(id.GetHashCode() % 1000);
+        }
+
+        private int CalcularColumna(string id)
+        {
+            if (id.StartsWith("SAT-ECU"))
+                return 1 + (CalcularFila(id) % 100);
+            else if (id.StartsWith("SAT-POL"))
+                return 101 + (CalcularFila(id) % 100);
+            else if (id.StartsWith("ANT"))
+                return 201 + (CalcularFila(id) % 100);
+            else
+                return 1;
+        }
+    }
 }
