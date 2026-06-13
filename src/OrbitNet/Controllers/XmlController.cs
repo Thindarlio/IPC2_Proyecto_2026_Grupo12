@@ -91,6 +91,14 @@ namespace OrbitNet.Controllers
                                 break;
                             }
 
+                            //VERIFICA QUE LOS NUEVOS DATOS A INGRESAR NO EXISTA YA EN LA MEMORIA RAM
+                            if (Memoria.RedSatelital.ExisteId(id) || tempMatrix.ExisteId(id))
+                            {
+                                transaccionExitosa = false;
+                                causaFallo = $"El satélite '{id}' ya existe en la memoria RAM. " +
+                                $"No se permiten datos duplicados.";
+                            }
+
                             int fila = CalcularFila(id);
                             int columna = CalcularColumna(id);
                             tempMatrix.Insert(fila, columna, id, nombre, enlaceIp, "ECU", null);
@@ -142,6 +150,14 @@ namespace OrbitNet.Controllers
                                         transaccionExitosa = false;
                                         causaFallo = $"ID inválido '{sateliteId}' en <orbitas_polares>. Formato requerido: SAT-(ECU|POL)-0000.";
                                         break;
+                                    }
+
+                                    //VERIFICA QUE LOS NUEVOS DATOS A INGRESAR NO EXISTA YA EN LA MEMORIA RAM
+                                    if (Memoria.RedSatelital.ExisteId(sateliteId) || tempMatrix.ExisteId(sateliteId))
+                                    {
+                                        transaccionExitosa = false;
+                                        causaFallo = $"El satélite '{sateliteId}' ya existe en la memoria RAM. " +
+                                        $"No se permiten datos duplicados.";
                                     }
 
                                     int fila = CalcularFila(sateliteId);
@@ -197,6 +213,14 @@ namespace OrbitNet.Controllers
                                     break;
                                 }
 
+                                //VERIFICA QUE LOS NUEVOS DATOS A INGRESAR NO EXISTA YA EN LA MEMORIA RAM
+                                if (Memoria.RedSatelital.ExisteId(id) || tempMatrix.ExisteId(id))
+                                {
+                                    transaccionExitosa = false;
+                                    causaFallo = $"El satélite '{id}' ya existe en la memoria RAM. " +
+                                    $"No se permiten datos duplicados.";
+                                }                                
+
                                 int fila = CalcularFila(id);
                                 int columna = CalcularColumna(id);
                                 tempMatrix.Insert(fila, columna, id, nombre, ip, "ANT", coords);
@@ -222,6 +246,7 @@ namespace OrbitNet.Controllers
             // ==========================================================
             if (transaccionExitosa)
             {
+
                 // COMMIT: Pasamos los datos del plano temporal a la Matriz Dispersa Real en la RAM
                 foreach (var nodo in tempMatrix.GetAllNodes())
                 {
