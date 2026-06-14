@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using OrbitNet.Models;
 
+
+
 namespace OrbitNet.Controllers
 {
     /// <summary>
@@ -28,6 +30,8 @@ namespace OrbitNet.Controllers
                 SatelitesPolares = Memoria.RedSatelital.GetNodesByType("POL"),
                 AntenasTerrestres = Memoria.RedSatelital.GetNodesByType("ANT")
             };
+
+            
 
             return View(viewModel);
         }
