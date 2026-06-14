@@ -33,7 +33,7 @@ namespace OrbitNet.Controllers
             Memoria.BitacoraAuditoria.Registrar("INFO", $"Iniciando carga de archivo: '{archivoXml.FileName}'");
 
             // Instancia de matriz temporal para aislamiento seguro de fallos (Mecanismo Rollback)
-            SparseMatrix tempMatrix = new SparseMatrix(1000);
+            SparseMatrix tempMatrix = new SparseMatrix();
 
             bool transaccionExitosa = true;
             string causaFallo = "";

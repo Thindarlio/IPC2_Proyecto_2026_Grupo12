@@ -1,66 +1,109 @@
 using OrbitNet.Models.Interfaces;
 using OrbitNet.Models.Nodes;
 using System;
+using System.Text;
 
 namespace OrbitNet.Models.TDAs;
 
 public class SparseMatrix : IAbstractCollection
 {
-    // ========= CAMPOS PRIVADOS ======== 
-    private readonly int _maxSatelites;     // Tamaño máximo configurable
-    private MatrixNode?[] _satelites;       // Arreglo fijo de referencias en RAM
-    private int _contadorSatelites;         // Contador actual manual
+    // ========= CAMPOS PRIVADOS (SOLO CABECERAS ENLAZADAS) ========= 
+    private HeaderNode? _rowHeaders;   // Cabeceras de fila
+    private HeaderNode? _colHeaders;   // Cabeceras de columna
+    private int _count;                // Contador manual
 
-    private HeaderNode? _rowHeaders;
-    private HeaderNode? _colHeaders;
-
-    // ======== CONSTRUCTOR =======
-    public SparseMatrix(int maxSatelites = 1000)
+    // ======== CONSTRUCTOR ========
+    public SparseMatrix()
     {
-        _maxSatelites = maxSatelites;
-        _satelites = new MatrixNode?[_maxSatelites]; 
-        _contadorSatelites = 0;
         _rowHeaders = null;
         _colHeaders = null;
+        _count = 0;
     }
 
-    // PROPIEDADES (Implementación obligatoria de tu interfaz de auditoría)
-    public int Count => _contadorSatelites;
-    public bool IsEmpty => _contadorSatelites == 0;
-    public int MaxCapacity => _maxSatelites;  
+    // PROPIEDADES
+    public int Count => _count;
+    public bool IsEmpty => _count == 0;
 
-    //============ MÉTODOS PÚBLICOS =========== 
-
-    public void Insert(int row, int col, string id, string name, string ipAddress, string nodeType, string? extraData)
+    // ========== INSERCIÓN (SIN ARREGLOS) ==========
+    public void Insert(int row, int col, string id, string name, string ipAddress, string nodeType, string? extraData = null)
     {
-        if (_contadorSatelites >= _maxSatelites)
-            throw new InvalidOperationException($"No se pueden agregar más satélites. Máximo: {_maxSatelites}");
-
+        // Validaciones
         if (Search(row, col) != null)
-            throw new InvalidOperationException($"Ya existe satélite en ({row},{col})");
+            throw new InvalidOperationException($"Ya existe elemento en ({row},{col})");
 
-        if (!IsValidSatelliteId(id) && !id.StartsWith("ANT", StringComparison.OrdinalIgnoreCase))  
+        if (!IsValidSatelliteId(id) && !id.StartsWith("ANT", StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException($"ID inválido: {id}");
 
         if (!IsValidIpAddress(ipAddress))
             throw new ArgumentException($"IP inválida: {ipAddress}");
 
+        // Crear nuevo nodo
         MatrixNode newNode = new MatrixNode(row, col, id, name, ipAddress, nodeType, extraData);
 
-        InsertRowHeader(row);
-        InsertColHeader(col);
-        InsertInRow(newNode);
-        InsertInColumn(newNode);
+        // Obtener o crear cabeceras
+        HeaderNode rowHeader = GetOrCreateRowHeader(row);
+        HeaderNode colHeader = GetOrCreateColHeader(col);
 
-        _satelites[_contadorSatelites] = newNode;
-        _contadorSatelites++;
+        // 1. Inserción horizontal (en la fila, ordenada por columna)
+        if (rowHeader.Access == null)
+        {
+            rowHeader.Access = newNode;
+        }
+        else if (col < rowHeader.Access.Col)
+        {
+            newNode.Right = rowHeader.Access;
+            rowHeader.Access.Left = newNode;
+            rowHeader.Access = newNode;
+        }
+        else
+        {
+            MatrixNode? current = rowHeader.Access;
+            while (current.Right != null && current.Right.Col < col)
+            {
+                current = current.Right;
+            }
+            newNode.Right = current.Right;
+            if (current.Right != null)
+                current.Right.Left = newNode;
+            current.Right = newNode;
+            newNode.Left = current;
+        }
+
+        // 2. Inserción vertical (en la columna, ordenada por fila)
+        if (colHeader.Access == null)
+        {
+            colHeader.Access = newNode;
+        }
+        else if (row < colHeader.Access.Row)
+        {
+            newNode.Down = colHeader.Access;
+            colHeader.Access.Up = newNode;
+            colHeader.Access = newNode;
+        }
+        else
+        {
+            MatrixNode? current = colHeader.Access;
+            while (current.Down != null && current.Down.Row < row)
+            {
+                current = current.Down;
+            }
+            newNode.Down = current.Down;
+            if (current.Down != null)
+                current.Down.Up = newNode;
+            current.Down = newNode;
+            newNode.Up = current;
+        }
+
+        _count++;
     }
 
+    // Sobrecarga para compatibilidad
     public void Insert(int row, int col, string id, string name, string ipAddress, string nodeType)
     {
         Insert(row, col, id, name, ipAddress, nodeType, null);
     }
 
+    // ========== BÚSQUEDA O(r+c) ==========
     public MatrixNode? Search(int row, int col)
     {
         HeaderNode? rowHeader = FindRowHeader(row);
@@ -68,7 +111,7 @@ public class SparseMatrix : IAbstractCollection
             return null;
 
         MatrixNode? current = rowHeader.Access;
-        while (current != null && current.Col <= col)
+        while (current != null)
         {
             if (current.Col == col)
                 return current;
@@ -77,109 +120,67 @@ public class SparseMatrix : IAbstractCollection
         return null;
     }
 
-    /*SE AGREGA ESTE METODO PARA QUE RECORRA TODOS LOS NODOS, Y VERIFIQUE
-    QUE EL ID NO EXISTA, PARA EVITAR DUPLICADOS*/
-    public bool ExisteId(string id)
-    {
-        foreach (var nodo in GetAllNodes())
-        {
-            if(nodo.Id == id)
-                return true;
-        }
-        return false;
-    }
-    public MatrixNode? SearchByIndex(int index)
-    {
-        if (index < 0 || index >= _contadorSatelites)
-            return null;
-        return _satelites[index];
-    }
-
+    // ========== ELIMINACIÓN CON RECONEXIÓN QUIRÚRGICA ==========
     public void Delete(int row, int col)
     {
-        MatrixNode? nodeToDelete = Search(row, col);
-        if (nodeToDelete == null)
-            throw new InvalidOperationException($"No existe satélite en ({row},{col})");
+        HeaderNode? rowHeader = FindRowHeader(row);
+        HeaderNode? colHeader = FindColHeader(col);
 
-        // Reconectar punteros horizontales en RAM
-        if (nodeToDelete.Left != null)
-            nodeToDelete.Left.Right = nodeToDelete.Right;
+        if (rowHeader == null || colHeader == null) return;
+
+        MatrixNode? target = Search(row, col);
+        if (target == null) return;
+
+        // 1. Desconectar horizontalmente
+        if (rowHeader.Access == target)
+        {
+            rowHeader.Access = target.Right;
+            if (rowHeader.Access != null)
+                rowHeader.Access.Left = null;
+        }
         else
         {
-            HeaderNode? rowHeader = FindRowHeader(row);
-            if (rowHeader != null)
-                rowHeader.Access = nodeToDelete.Right;
+            if (target.Left != null)
+                target.Left.Right = target.Right;
+            if (target.Right != null)
+                target.Right.Left = target.Left;
         }
 
-        if (nodeToDelete.Right != null)
-            nodeToDelete.Right.Left = nodeToDelete.Left;
-
-        // Reconectar punteros verticales en RAM
-        if (nodeToDelete.Up != null)
-            nodeToDelete.Up.Down = nodeToDelete.Down;
+        // 2. Desconectar verticalmente
+        if (colHeader.Access == target)
+        {
+            colHeader.Access = target.Down;
+            if (colHeader.Access != null)
+                colHeader.Access.Up = null;
+        }
         else
         {
-            HeaderNode? colHeader = FindColHeader(col);
-            if (colHeader != null)
-                colHeader.Access = nodeToDelete.Down;
+            if (target.Up != null)
+                target.Up.Down = target.Down;
+            if (target.Down != null)
+                target.Down.Up = target.Up;
         }
 
-        if (nodeToDelete.Down != null)
-            nodeToDelete.Down.Up = nodeToDelete.Up;
+        // 3. Limpiar cabeceras vacías
+        RemoveRowHeaderIfEmpty(rowHeader);
+        RemoveColHeaderIfEmpty(colHeader);
 
-        // Eliminar del arreglo interno
-        int indexToRemove = -1;
-        for (int i = 0; i < _contadorSatelites; i++)
-        {
-            if (_satelites[i] == nodeToDelete)
-            {
-                indexToRemove = i;
-                break;
-            }
-        }
-
-        if (indexToRemove >= 0)
-        {
-            for (int i = indexToRemove; i < _contadorSatelites - 1; i++)
-            {
-                _satelites[i] = _satelites[i + 1];
-            }
-            _satelites[_contadorSatelites - 1] = null; 
-            _contadorSatelites--;
-        }
+        _count--;
     }
 
+    // ========== LIMPIEZA TOTAL ==========
     public void Clear()
     {
         _rowHeaders = null;
         _colHeaders = null;
-
-        for (int i = 0; i < _contadorSatelites; i++)
-        {
-            _satelites[i] = null;
-        }
-        _contadorSatelites = 0;
+        _count = 0;
     }
 
-    public MatrixNode?[] GetAllSatellites()
-    {
-        MatrixNode?[] result = new MatrixNode?[_contadorSatelites];
-        for (int i = 0; i < _contadorSatelites; i++)
-        {
-            result[i] = _satelites[i];
-        }
-        return result;
-    }
-
-    // ==========================================================
-    // RECORRIDOS MANUALES REFACTORIZADOS (CERO GENERIC)
-    // ==========================================================
-
-
+    // ========== RECORRIDOS Ya sin Arreglos full listas enlazadas ==========
     public MatrixNode[] GetAllNodes()
     {
-        MatrixNode[] temporal = new MatrixNode[_contadorSatelites];
-        int indice = 0;
+        MatrixNode[] result = new MatrixNode[_count];
+        int index = 0;
 
         HeaderNode? rowCurrent = _rowHeaders;
         while (rowCurrent != null)
@@ -187,189 +188,89 @@ public class SparseMatrix : IAbstractCollection
             MatrixNode? nodeCurrent = rowCurrent.Access;
             while (nodeCurrent != null)
             {
-                temporal[indice] = nodeCurrent;
-                indice++;
+                result[index] = nodeCurrent;
+                index++;
                 nodeCurrent = nodeCurrent.Right;
             }
             rowCurrent = rowCurrent.Next;
         }
-        return temporal;
+        return result;
     }
 
     public MatrixNode[] GetNodesByType(string nodeType)
     {
-        int totalTipo = CountByType(nodeType);
-        MatrixNode[] resultado = new MatrixNode[totalTipo];
-        int indice = 0;
-
-        MatrixNode[] todos = GetAllNodes();
-        for (int i = 0; i < todos.Length; i++)
+        // Primero contamos cuántos hay del tipo
+        int count = 0;
+        HeaderNode? rowCurrent = _rowHeaders;
+        while (rowCurrent != null)
         {
-            if (todos[i].NodeType == nodeType)
+            MatrixNode? nodeCurrent = rowCurrent.Access;
+            while (nodeCurrent != null)
             {
-                resultado[indice] = todos[i];
-                indice++;
+                if (nodeCurrent.NodeType == nodeType)
+                    count++;
+                nodeCurrent = nodeCurrent.Right;
             }
+            rowCurrent = rowCurrent.Next;
         }
-        return resultado;
-    }
 
+        MatrixNode[] result = new MatrixNode[count];
+        int index = 0;
+        rowCurrent = _rowHeaders;
+        while (rowCurrent != null)
+        {
+            MatrixNode? nodeCurrent = rowCurrent.Access;
+            while (nodeCurrent != null)
+            {
+                if (nodeCurrent.NodeType == nodeType)
+                {
+                    result[index] = nodeCurrent;
+                    index++;
+                }
+                nodeCurrent = nodeCurrent.Right;
+            }
+            rowCurrent = rowCurrent.Next;
+        }
+        return result;
+    }
 
     public int CountByType(string nodeType)
     {
         int count = 0;
-        MatrixNode[] todos = GetAllNodes();
-        for (int i = 0; i < todos.Length; i++)
+        HeaderNode? rowCurrent = _rowHeaders;
+        while (rowCurrent != null)
         {
-            if (todos[i].NodeType == nodeType)
-                count++;
+            MatrixNode? nodeCurrent = rowCurrent.Access;
+            while (nodeCurrent != null)
+            {
+                if (nodeCurrent.NodeType == nodeType)
+                    count++;
+                nodeCurrent = nodeCurrent.Right;
+            }
+            rowCurrent = rowCurrent.Next;
         }
         return count;
     }
 
-    // ==========================================================
-    // MÉTODOS PRIVADOS DE CABECERAS Y ENLACES
-    // ==========================================================
-
-    private void InsertRowHeader(int row)
+    // ========== Verificación de existencia por ID ==========
+    public bool ExisteId(string id)
     {
-        if (_rowHeaders == null)
+        HeaderNode? rowCurrent = _rowHeaders;
+        while (rowCurrent != null)
         {
-            _rowHeaders = new HeaderNode(row);
-            return;
+            MatrixNode? nodeCurrent = rowCurrent.Access;
+            while (nodeCurrent != null)
+            {
+                if (nodeCurrent.Id == id)
+                    return true;
+                nodeCurrent = nodeCurrent.Right;
+            }
+            rowCurrent = rowCurrent.Next;
         }
-
-        HeaderNode current = _rowHeaders;
-        HeaderNode? previous = null;
-
-        while (current != null && current.Index < row)
-        {
-            previous = current;
-            current = current.Next!;
-        }
-
-        if (current != null && current.Index == row)
-            return;
-
-        HeaderNode newHeader = new HeaderNode(row);
-
-        if (previous == null)
-        {
-            newHeader.Next = _rowHeaders;
-            _rowHeaders = newHeader;
-        }
-        else
-        {
-            newHeader.Next = current;
-            previous.Next = newHeader;
-        }
+        return false;
     }
 
-    private void InsertColHeader(int col)
-    {
-        if (_colHeaders == null)
-        {
-            _colHeaders = new HeaderNode(col);
-            return;
-        }
-
-        HeaderNode current = _colHeaders;
-        HeaderNode? previous = null;
-
-        while (current != null && current.Index < col)
-        {
-            previous = current;
-            current = current.Next!;
-        }
-
-        if (current != null && current.Index == col)
-            return;
-
-        HeaderNode newHeader = new HeaderNode(col);
-
-        if (previous == null)
-        {
-            newHeader.Next = _colHeaders;
-            _colHeaders = newHeader;
-        }
-        else
-        {
-            newHeader.Next = current;
-            previous.Next = newHeader;
-        }
-    }
-
-    private void InsertInRow(MatrixNode newNode)
-    {
-        HeaderNode? rowHeader = FindRowHeader(newNode.Row);
-        if (rowHeader == null) return;
-
-        if (rowHeader.Access == null)
-        {
-            rowHeader.Access = newNode;
-            return;
-        }
-
-        MatrixNode? current = rowHeader.Access;
-        MatrixNode? previous = null;
-
-        while (current != null && current.Col < newNode.Col)
-        {
-            previous = current;
-            current = current.Right;
-        }
-
-        if (previous == null)
-        {
-            newNode.Right = rowHeader.Access;
-            rowHeader.Access.Left = newNode;
-            rowHeader.Access = newNode;
-        }
-        else
-        {
-            newNode.Right = current;
-            newNode.Left = previous;
-            previous.Right = newNode;
-            if (current != null)
-                current.Left = newNode;
-        }
-    }
-
-    private void InsertInColumn(MatrixNode newNode)
-    {
-        HeaderNode? colHeader = FindColHeader(newNode.Col);
-        if (colHeader == null) return;
-
-        if (colHeader.Access == null)
-        {
-            colHeader.Access = newNode;
-            return;
-        }
-
-        MatrixNode? current = colHeader.Access;
-        MatrixNode? previous = null;
-
-        while (current != null && current.Row < newNode.Row)
-        {
-            previous = current;
-            current = current.Down;
-        }
-
-        if (previous == null)
-        {
-            newNode.Down = colHeader.Access;
-            colHeader.Access.Up = newNode;
-            colHeader.Access = newNode;
-        }
-        else
-        {
-            newNode.Down = current;
-            newNode.Up = previous;
-            previous.Down = newNode;
-            if (current != null)
-                current.Up = newNode;
-        }
-    }
+    // ========== MÉTODOS PRIVADOS PARA CABECERAS ==========
 
     private HeaderNode? FindRowHeader(int row)
     {
@@ -387,6 +288,115 @@ public class SparseMatrix : IAbstractCollection
         return current;
     }
 
+    private HeaderNode GetOrCreateRowHeader(int row)
+    {
+        if (_rowHeaders == null)
+        {
+            _rowHeaders = new HeaderNode(row);
+            return _rowHeaders;
+        }
+
+        if (row < _rowHeaders.Index)
+        {
+            HeaderNode nuevo = new HeaderNode(row) { Next = _rowHeaders };
+            _rowHeaders = nuevo;
+            return nuevo;
+        }
+
+        HeaderNode actual = _rowHeaders;
+        while (actual.Next != null && actual.Next.Index < row)
+        {
+            actual = actual.Next;
+        }
+
+        if (actual.Next != null && actual.Next.Index == row)
+            return actual.Next;
+
+        if (actual.Index == row)
+            return actual;
+
+        HeaderNode nuevoNodo = new HeaderNode(row) { Next = actual.Next };
+        actual.Next = nuevoNodo;
+        return nuevoNodo;
+    }
+
+    private HeaderNode GetOrCreateColHeader(int col)
+    {
+        if (_colHeaders == null)
+        {
+            _colHeaders = new HeaderNode(col);
+            return _colHeaders;
+        }
+
+        if (col < _colHeaders.Index)
+        {
+            HeaderNode nuevo = new HeaderNode(col) { Next = _colHeaders };
+            _colHeaders = nuevo;
+            return nuevo;
+        }
+
+        HeaderNode actual = _colHeaders;
+        while (actual.Next != null && actual.Next.Index < col)
+        {
+            actual = actual.Next;
+        }
+
+        if (actual.Next != null && actual.Next.Index == col)
+            return actual.Next;
+
+        if (actual.Index == col)
+            return actual;
+
+        HeaderNode nuevoNodo = new HeaderNode(col) { Next = actual.Next };
+        actual.Next = nuevoNodo;
+        return nuevoNodo;
+    }
+
+    private void RemoveRowHeaderIfEmpty(HeaderNode rowHeader)
+    {
+        if (rowHeader.Access != null) return;
+
+        if (_rowHeaders == rowHeader)
+        {
+            _rowHeaders = rowHeader.Next;
+            return;
+        }
+
+        HeaderNode? actual = _rowHeaders;
+        while (actual != null && actual.Next != rowHeader)
+        {
+            actual = actual.Next;
+        }
+
+        if (actual != null)
+        {
+            actual.Next = rowHeader.Next;
+        }
+    }
+
+    private void RemoveColHeaderIfEmpty(HeaderNode colHeader)
+    {
+        if (colHeader.Access != null) return;
+
+        if (_colHeaders == colHeader)
+        {
+            _colHeaders = colHeader.Next;
+            return;
+        }
+
+        HeaderNode? actual = _colHeaders;
+        while (actual != null && actual.Next != colHeader)
+        {
+            actual = actual.Next;
+        }
+
+        if (actual != null)
+        {
+            actual.Next = colHeader.Next;
+        }
+    }
+
+    // ========== VALIDACIONES ==========
     private bool IsValidSatelliteId(string id)
     {
         if (string.IsNullOrEmpty(id)) return false;
