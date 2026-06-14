@@ -77,18 +77,6 @@ public class SparseMatrix : IAbstractCollection
         return null;
     }
 
-    /*SE AGREGA ESTE METODO PARA QUE RECORRA TODOS LOS NODOS, Y VERIFIQUE
-    QUE EL ID NO EXISTA, PARA EVITAR DUPLICADOS*/
-    public bool ExisteId(string id)
-    {
-        foreach (var nodo in GetAllNodes())
-        {
-            if(nodo.Id == id)
-                return true;
-        }
-        return false;
-    }
-
     public MatrixNode? SearchByIndex(int index)
     {
         if (index < 0 || index >= _contadorSatelites)

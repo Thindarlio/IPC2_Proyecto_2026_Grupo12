@@ -25,9 +25,9 @@ public class MatrixNode
         Row = row;
         Col = col;
         Id = id;
-        Name = name;
+        Name = id;
         IpAddress = ipAddress;
-        NodeType = nodeType;
-        ExtraData = extraData;
+        NodeType = "ECU";
+        ExtraData = null;
     }
 }
