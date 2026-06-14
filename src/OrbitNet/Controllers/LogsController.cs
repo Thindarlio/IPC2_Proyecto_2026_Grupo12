@@ -1,26 +1,31 @@
 using Microsoft.AspNetCore.Mvc;
-using OrbitNet.Models; // Necesario para mandar a traer tu clase global "Memoria"
+using OrbitNet.Models; // Para mandar a llamar a tu clase centralizada "Memoria"
 
 namespace OrbitNet.Controllers
 {
     /// <summary>
-    /// Controlador especializado en administrar las acciones y limpiezas de los registros de auditoría del sistema.
+    /// Controlador encargado de gestionar el flujo transaccional y la administración
+    /// de la Bitácora de Auditoría, implementada mediante un TDA dinámico lineal.
     /// </summary>
     public class LogsController : Controller
     {
+        /// <summary>
+        /// Acción POST que ejecuta la purga completa del TDA dinámico de auditoría.
+        /// </summary>
         [HttpPost]
         public IActionResult LimpiarLogs()
         {
-            // FUSIÓN: Llamamos al método Clear() de tu TDA LogAuditoria manual en la RAM global
+            // 1. ESTRUCTURA PRINCIPAL: Vaciamos los nodos de tu lista enlazada/cola manual (.Clear())
+            // No usamos colecciones nativas; se limpian los punteros cabeza/cola directamente en RAM.
             Memoria.BitacoraAuditoria.Clear();
             
-            // FUSIÓN: Registramos el evento de purga usando tu método manual Registrar()
-            Memoria.BitacoraAuditoria.Registrar("INFO", "Se purgó la bitácora de auditoría de forma manual.");
+            // 2. INSERCIÓN DINÁMICA: Registramos el evento creando un nuevo nodo dinámico en el TDA
+            Memoria.BitacoraAuditoria.Registrar("INFO", "Se purgó de forma manual y lineal la bitácora de auditoría.");
             
-            // Guardamos el mensaje de éxito en el TempData para que sobreviva al redireccionamiento
-            TempData["SuccessMessage"] = "Bitácora de auditoría reiniciada correctamente en la memoria RAM.";
+            // 3. MENSAJE TRANSACCIONAL: Guardamos la alerta en el TempData para el salto entre controladores
+            TempData["SuccessMessage"] = "La estructura dinámica de la bitácora ha sido reiniciada correctamente.";
             
-            // Redireccionamos el flujo de vuelta al Dashboard principal para refrescar la pantalla
+            // 4. REDIRECCIÓN: Volvemos al Dashboard principal para que renderice el nuevo nodo único
             return RedirectToAction("Index", "Home");
         }
     }
