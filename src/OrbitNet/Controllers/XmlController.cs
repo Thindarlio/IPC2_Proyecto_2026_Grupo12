@@ -3,18 +3,19 @@ using Microsoft.AspNetCore.Http;
 using OrbitNet.Models;
 using OrbitNet.Models.TDAs;
 using System;
+using System.IO;
 using System.Xml;
 using System.Text.RegularExpressions;
 
 namespace OrbitNet.Controllers
 {
-    
-    // Controlador especializado en el procesamiento, validación sintáctica
-    // e ingesta atómica de archivos de configuración espacial XML.
-   
+    /// <summary>
+    /// Controlador especializado en el procesamiento, validación sintáctica
+    /// e ingesta atómica (Commit/Rollback) de archivos de configuración espacial XML.
+    /// </summary>
     public class XmlController : Controller
     {
-        // Expresiones Regulares de validación sintáctica obligatorias
+        // Expresiones Regulares de validación sintáctica obligatorias de la cátedra
         private const string PatronIdSatelite = @"^SAT-(ECU|POL)-\d{4}$";
         private const string PatronIpv4 = @"^(?:(?:25[0-5]|2[0-4]\d|[01]?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d?\d)$";
         private const string PatronCoordenadas = @"^-?\d{1,2}\.\d{4,6},-?\d{1,3}\.\d{4,6}$";
@@ -28,10 +29,10 @@ namespace OrbitNet.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            // Registramos el inicio del suceso en la bitácora global compartida
+            // Registramos el inicio del suceso en la bitácora lineal de auditoría
             Memoria.BitacoraAuditoria.Registrar("INFO", $"Iniciando carga de archivo: '{archivoXml.FileName}'");
 
-            // Instancia de matriz temporal para aislamiento de fallos (Rollback)
+            // Instancia de matriz temporal para aislamiento seguro de fallos (Mecanismo Rollback)
             SparseMatrix tempMatrix = new SparseMatrix(1000);
 
             bool transaccionExitosa = true;
@@ -40,7 +41,7 @@ namespace OrbitNet.Controllers
 
             try
             {
-                // Mitigación estricta de Vulnerabilidades XXE dictada por la cátedra
+                // Mitigación estricta de Vulnerabilidades XXE dictada por la seguridad del laboratorio
                 XmlReaderSettings settings = new XmlReaderSettings
                 {
                     DtdProcessing = DtdProcessing.Prohibit,
@@ -73,7 +74,7 @@ namespace OrbitNet.Controllers
                             if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(nombre) || string.IsNullOrWhiteSpace(enlaceIp))
                             {
                                 transaccionExitosa = false;
-                                causaFallo = "Satélite ecuatorial con campos vacíos o faltantes.";
+                                causaFallo = "Satélite ecuatorial con campos vacíos o faltantes en el XML.";
                                 break;
                             }
 
@@ -91,14 +92,15 @@ namespace OrbitNet.Controllers
                                 break;
                             }
 
-                            //VERIFICA QUE LOS NUEVOS DATOS A INGRESAR NO EXISTA YA EN LA MEMORIA RAM
+                            // VALIDACIÓN EXTRA DE DUPLICADOS EN RAM (Usando tu método ExisteId)
                             if (Memoria.RedSatelital.ExisteId(id) || tempMatrix.ExisteId(id))
                             {
                                 transaccionExitosa = false;
-                                causaFallo = $"El satélite '{id}' ya existe en la memoria RAM. " +
-                                $"No se permiten datos duplicados.";
+                                causaFallo = $"El satélite '{id}' ya existe en la memoria RAM. No se permiten datos duplicados.";
+                                break;
                             }
 
+                            // Cálculo posicional ortogonal e inserción en el plano temporal aislado
                             int fila = CalcularFila(id);
                             int columna = CalcularColumna(id);
                             tempMatrix.Insert(fila, columna, id, nombre, enlaceIp, "ECU", null);
@@ -122,16 +124,14 @@ namespace OrbitNet.Controllers
                             foreach (XmlNode polar in polares)
                             {
                                 string? polarId = polar.Attributes?["id"]?.Value?.Trim();
-
                                 if (string.IsNullOrWhiteSpace(polarId))
                                 {
                                     transaccionExitosa = false;
-                                    causaFallo = "Óbita polar con ID vacío o faltantes.";
+                                    causaFallo = "Órbita polar con ID vacío o faltante.";
                                     break;
                                 }
 
                                 XmlNodeList satelitesPol = polar.SelectNodes("child::satelite")!;
-
                                 foreach (XmlNode nodo in satelitesPol)
                                 {
                                     string? sateliteId = nodo.Attributes?["id"]?.Value?.Trim();
@@ -152,12 +152,12 @@ namespace OrbitNet.Controllers
                                         break;
                                     }
 
-                                    //VERIFICA QUE LOS NUEVOS DATOS A INGRESAR NO EXISTA YA EN LA MEMORIA RAM
+                                    // VALIDACIÓN EXTRA DE DUPLICADOS EN RAM
                                     if (Memoria.RedSatelital.ExisteId(sateliteId) || tempMatrix.ExisteId(sateliteId))
                                     {
                                         transaccionExitosa = false;
-                                        causaFallo = $"El satélite '{sateliteId}' ya existe en la memoria RAM. " +
-                                        $"No se permiten datos duplicados.";
+                                        causaFallo = $"El satélite '{sateliteId}' ya existe en la memoria RAM. No se permiten datos duplicados.";
+                                        break;
                                     }
 
                                     int fila = CalcularFila(sateliteId);
@@ -195,31 +195,31 @@ namespace OrbitNet.Controllers
                                     string.IsNullOrWhiteSpace(coords) || string.IsNullOrWhiteSpace(ip))
                                 {
                                     transaccionExitosa = false;
-                                    causaFallo = "Antena con campos vacíos o faltantes.";
+                                    causaFallo = "Antena terrestre con campos vacíos o faltantes en el archivo.";
                                     break;
                                 }
 
                                 if (!Regex.IsMatch(coords, PatronCoordenadas))
                                 {
                                     transaccionExitosa = false;
-                                    causaFallo = $"Coordenadas inválidas '{coords}' en antena '{id}'.";
+                                    causaFallo = $"Coordenadas inválidas '{coords}' en la antena '{id}'.";
                                     break;
                                 }
 
                                 if (!Regex.IsMatch(ip, PatronIpv4))
                                 {
                                     transaccionExitosa = false;
-                                    causaFallo = $"IP inválido '{ip}' en antena '{id}'.";
+                                    causaFallo = $"Dirección IP inválida '{ip}' en la antena '{id}'.";
                                     break;
                                 }
 
-                                //VERIFICA QUE LOS NUEVOS DATOS A INGRESAR NO EXISTA YA EN LA MEMORIA RAM
+                                // VALIDACIÓN EXTRA DE DUPLICADOS EN RAM
                                 if (Memoria.RedSatelital.ExisteId(id) || tempMatrix.ExisteId(id))
                                 {
                                     transaccionExitosa = false;
-                                    causaFallo = $"El satélite '{id}' ya existe en la memoria RAM. " +
-                                    $"No se permiten datos duplicados.";
-                                }                                
+                                    causaFallo = $"La antena '{id}' ya existe en la memoria RAM. No se permiten datos duplicados.";
+                                    break;
+                                }
 
                                 int fila = CalcularFila(id);
                                 int columna = CalcularColumna(id);
@@ -233,21 +233,20 @@ namespace OrbitNet.Controllers
             catch (XmlException ex)
             {
                 transaccionExitosa = false;
-                causaFallo = $"Error de parseo Xml: {ex.Message}";
+                causaFallo = $"Error de estructura XML: {ex.Message}";
             }
             catch (Exception ex)
             {
                 transaccionExitosa = false;
-                causaFallo = $"Error de procesamiento: {ex.Message}";
+                causaFallo = $"Error crítico de procesamiento: {ex.Message}";
             }
 
             // ==========================================================
-            // PROTOCOLO COMMIT / ROLLBACK (Fase Transaccional)
+            // PROTOCOLO TRANSACCIONAL ATÓMICO (COMMIT / ROLLBACK)
             // ==========================================================
             if (transaccionExitosa)
             {
-
-                // COMMIT: Pasamos los datos del plano temporal a la Matriz Dispersa Real en la RAM
+                // COMMIT: Recorremos los nodos del plano temporal y los inyectamos en la estructura principal real
                 foreach (var nodo in tempMatrix.GetAllNodes())
                 {
                     if (nodo != null)
@@ -256,14 +255,14 @@ namespace OrbitNet.Controllers
                     }
                 }
 
-                string msgExito = $"Transacción completada con éxito. Se insertaron {contadorInserciones} elementos en la matriz dispersa.";
-                Memoria.BitacoraAuditoria.Registrar("INFO", msgExito);
+                string msgExito = $"Transacción completada con éxito. Se ingresaron {contadorInserciones} elementos dinámicos a la Red Satelital.";
+                Memoria.BitacoraAuditoria.Registrar("SUCCESS", msgExito);
                 TempData["SuccessMessage"] = msgExito;
             }
             else
             {
-                // ROLLBACK: No alteramos el almacén central y registramos la causa en la bitácora
-                string msgFallo = $"Transacción abortada (Rollback). Causa: {causaFallo}. La memoria RAM permanece intacta.";
+                // ROLLBACK: La RedSatelital central jamás se toca si un solo elemento venía corrupto
+                string msgFallo = $"Transacción abortada (Rollback ejecutado). Causa: {causaFallo}. La memoria RAM permanece intacta.";
                 Memoria.BitacoraAuditoria.Registrar("ERROR", msgFallo);
                 TempData["ErrorMessage"] = msgFallo;
             }

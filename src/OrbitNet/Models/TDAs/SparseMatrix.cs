@@ -88,7 +88,6 @@ public class SparseMatrix : IAbstractCollection
         }
         return false;
     }
-
     public MatrixNode? SearchByIndex(int index)
     {
         if (index < 0 || index >= _contadorSatelites)
