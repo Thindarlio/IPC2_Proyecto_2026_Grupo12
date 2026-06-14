@@ -274,7 +274,7 @@ namespace OrbitNet.Controllers
         // ==========================================================
         // FUNCIONES AUXILIARES MATEMÁTICAS PARA COORDENADAS ORTOGONALES
         // ==========================================================
-        
+
         private int CalcularFila(string id)
         {
             var match = Regex.Match(id, @"\d+");
