@@ -1,4 +1,31 @@
-echo bin/ > .gitignore
-echo obj/ >> .gitignore
-echo .vscode/ >> .gitignore
-echo *.log >> .gitignore
+# Compilación
+bin/
+obj/
+
+# IDE
+.vscode/
+
+# Logs
+*.log
+
+# Usuario de VS Code
+.vscode/launch.json
+.vscode/tasks.json
+
+# .NET
+*.user
+*.suo
+*.cache
+*.pidb
+
+# Respaldos
+*.bak
+*.tmp
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Tests
+TestResults/
+*.coverage

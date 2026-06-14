@@ -30,6 +30,25 @@ namespace OrbitNet.Controllers
             };
 
             return View(viewModel);
+
+        }
+
+        [HttpPost]
+        public IActionResult Limpiar()
+        {
+            Memoria.RedSatelital.Clear();
+            Memoria.BitacoraAuditoria.Registrar("INFO", "Bitácora de auditoría limpiada por el usuario.");
+            TempData["Mensaje"] = "Bitácora de auditoría limpiada exitosamente.";
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public IActionResult LimpiarLogs()
+        {
+            Memoria.BitacoraAuditoria.Clear();
+            Memoria.BitacoraAuditoria.Registrar("INFO", "Bitácora de auditoría limpiada por el usuario.");
+            TempData["Mensaje"] = "Bitácora de auditoría limpiada exitosamente.";
+            return RedirectToAction("Index");
         }
     }
 }

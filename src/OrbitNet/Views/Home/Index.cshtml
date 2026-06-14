@@ -18,31 +18,31 @@
             @if (TempData["SuccessMessage"] != null)
             {
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="bi bi-check-circle-fill me-2"></i>
-            @TempData["SuccessMessage"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             }
 
             @if (TempData["WarningMessage"] != null)
             {
-            <div class="alert alert-warning alert-dismissible fade show" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-             @TempData["WarningMessage"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    @TempData["WarningMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             }
 
             @if (TempData["ErrorMessage"] != null)
             {
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                 <i class="bi bi-x-circle-fill me-2"></i>
-             @TempData["ErrorMessage"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <i class="bi bi-x-circle-fill me-2"></i>
+                    @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             }
-            
 
+            
             <div class="row g-4 mb-5">
                 <!-- Tarjeta Carga XML -->
                 <div class="col-md-6">
@@ -51,282 +51,288 @@
                             <h5 class="mb-0 fw-semibold">Carga Masiva de Configuración</h5>
                         </div>
                         <div class="card-body p-4 d-flex flex-column justify-content-between">
-                            <p class="text-muted small">Seleccione un archivo XML para cargar los satélites ecuatoriales, polares y antenas en la matriz dispersa.</p>
-                            <form asp-controller="Xml" asp-action="CargarXml" method="post" enctype="multipart/form-data" class="mt-3">
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold text-secondary">Archivo XML (.xml)</label>
-                                    <input type="file" name="archivoXml" class="form-control" accept=".xml" required />
-                                </div>
-                                <div class="d-grid">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="bi bi-upload me-2"></i>Procesar Ingesta XML
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tarjeta Operaciones -->
-                <div class="col-md-6">
-                    <div class="card h-100 shadow-sm border-0 rounded-3">
-                        <div class="card-header bg-dark text-white py-3">
-                            <h5 class="mb-0 fw-semibold">Operaciones de Memoria RAM</h5>
-                        </div>
-                        <div class="card-body p-4 d-flex flex-column justify-content-between">
-                            <p class="text-muted small">Limpie la matriz dispersa o purgue el historial de auditoría.</p>
-                            <div class="d-flex gap-2 flex-column mt-3">
-                                <form asp-action="Limpiar" method="post" class="w-100">
-                                    <button type="submit" class="btn btn-outline-danger w-100 text-start">
-                                        <i class="bi bi-trash-fill me-2"></i>Purgar Memoria RAM
-                                    </button>
-                                </form>
-                                <form asp-action="LimpiarLogs" method="post" class="w-100">
-                                    <button type="submit" class="btn btn-outline-warning w-100 text-start">
-                                        <i class="bi bi-journal-x me-2"></i>Purgar Historial de Logs
-                                    </button>
+                            <p class="text-muted small">Seleccione un archivo XML para cargar los satélites
+                                ecuatoriales, polares y antenas en la matriz dispersa.</p>
+                                <form asp-controller="Xml" asp-action="CargarXml" method="post"
+                                      enctype="multipart/form-data" class="mt-3">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold text-secondary">Archivo XML (.xml)</label>
+                                        <input type="file" name="archivoXml" class="form-control" accept=".xml" required />
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-upload me-2"></i>Procesar Ingesta XML
+                                        </button>
+                                    </div>
                                 </form>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Resumen de la Matriz -->
-            <div class="row g-3 mb-4">
-                <div class="col-md-4">
-                    <div class="card border-0 shadow-sm rounded-3 text-center py-3">
-                        <div class="card-body">
-                            <h2 class="fw-bold text-primary">@Model.RedSatelital.CountByType("ECU")</h2>
-                            <p class="text-muted mb-0 small">Satélites Ecuatoriales</p>
+                    <!-- Tarjeta Operaciones -->
+                    <div class="col-md-6">
+                        <div class="card h-100 shadow-sm border-0 rounded-3">
+                            <div class="card-header bg-dark text-white py-3">
+                                <h5 class="mb-0 fw-semibold">Operaciones de Memoria RAM</h5>
+                            </div>
+                            <div class="card-body p-4 d-flex flex-column justify-content-between">
+                                <p class="text-muted small">Limpie la matriz dispersa o purgue el historial de auditoría.
+                                </p>
+                                <div class="d-flex gap-2 flex-column mt-3">
+                                    <form asp-action="Limpiar" method="post" class="w-100">
+                                        <button type="submit" class="btn btn-outline-danger w-100 text-start">
+                                            <i class="bi bi-trash-fill me-2"></i>Purgar Memoria RAM
+                                        </button>
+                                    </form>
+                                    <form asp-action="LimpiarLogs" method="post" class="w-100">
+                                        <button type="submit" class="btn btn-outline-warning w-100 text-start">
+                                            <i class="bi bi-journal-x me-2"></i>Purgar Historial de Logs
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card border-0 shadow-sm rounded-3 text-center py-3">
-                        <div class="card-body">
-                            <h2 class="fw-bold text-info">@Model.RedSatelital.CountByType("POL")</h2>
-                            <p class="text-muted mb-0 small">Satélites Polares</p>
+
+                <!-- Resumen de la Matriz -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm rounded-3 text-center py-3">
+                            <div class="card-body">
+                                <h2 class="fw-bold text-primary">@Model.RedSatelital.CountByType("ECU")</h2>
+                                <p class="text-muted mb-0 small">Satélites Ecuatoriales</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm rounded-3 text-center py-3">
+                            <div class="card-body">
+                                <h2 class="fw-bold text-info">@Model.RedSatelital.CountByType("POL")</h2>
+                                <p class="text-muted mb-0 small">Satélites Polares</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm rounded-3 text-center py-3">
+                            <div class="card-body">
+                                <h2 class="fw-bold text-success">@Model.RedSatelital.CountByType("ANT")</h2>
+                                <p class="text-muted mb-0 small">Antenas Terrestres</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card border-0 shadow-sm rounded-3 text-center py-3">
-                        <div class="card-body">
-                            <h2 class="fw-bold text-success">@Model.RedSatelital.CountByType("ANT")</h2>
-                            <p class="text-muted mb-0 small">Antenas Terrestres</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Tabla Satélites Ecuatoriales -->
-            <div class="card shadow-sm border-0 rounded-3 overflow-hidden mb-4">
-                <div class="card-header bg-primary text-white px-4 py-3 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-semibold">Satélites Ecuatoriales en Memoria</h5>
-                    <span class="badge bg-light text-dark rounded-pill px-3">@Model.RedSatelital.CountByType("ECU") Elementos</span>
-                </div>
-                <div class="card-body p-4 bg-light">
-                    @if (Model.RedSatelital.CountByType("ECU") == 0)
-                    {
-                        <div class="text-center py-4 text-muted">
-                            <i class="bi bi-folder-x display-4 text-secondary mb-3 d-block"></i>
-                            <p class="mb-0">No hay satélites ecuatoriales en memoria RAM.</p>
+                <!-- Tabla Satélites Ecuatoriales -->
+                <div class="card shadow-sm border-0 rounded-3 overflow-hidden mb-4">
+                    <div
+                        class="card-header bg-primary text-white px-4 py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-semibold">Satélites Ecuatoriales en Memoria</h5>
+                        <span class="badge bg-light text-dark rounded-pill px-3">@Model.RedSatelital.CountByType("ECU")
+                            Elementos</span>
                         </div>
-                    }
-                    else
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0 bg-white rounded-3 overflow-hidden shadow-sm">
-                                <thead class="table-dark text-uppercase fs-6">
-                                    <tr>
-                                        <th scope="col" class="px-4 py-3 text-secondary">ID Satélite</th>
-                                        <th scope="col" class="py-3 text-secondary">Nombre</th>
-                                        <th scope="col" class="py-3 text-secondary">Dirección IP</th>
-                                        <th scope="col" class="py-3 text-secondary">Posición (Fila, Col)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var nodo in Model.RedSatelital.GetNodesByType("ECU"))
-                                    {
-                                        <tr>
-                                            <td class="px-4 py-3 font-monospace fw-bold text-primary">@nodo.Id</td>
-                                            <td class="py-3 fw-semibold text-dark">@nodo.Name</td>
-                                            <td class="py-3">
-                                                <span class="badge bg-light text-dark font-monospace border px-2 py-1">
-                                                    @nodo.IpAddress
-                                                </span>
-                                            </td>
-                                            <td class="py-3 font-monospace text-muted">(@nodo.Row, @nodo.Col)</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    }
-                </div>
-            </div>
-
-            <!-- Tabla Satélites Polares -->
-            <div class="card shadow-sm border-0 rounded-3 overflow-hidden mb-4">
-                <div class="card-header bg-info text-white px-4 py-3 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-semibold">Satélites Polares en Memoria</h5>
-                    <span class="badge bg-light text-dark rounded-pill px-3">@Model.RedSatelital.CountByType("POL") Elementos</span>
-                </div>
-                <div class="card-body p-4 bg-light">
-                    @if (Model.RedSatelital.CountByType("POL") == 0)
-                    {
-                        <div class="text-center py-4 text-muted">
-                            <i class="bi bi-folder-x display-4 text-secondary mb-3 d-block"></i>
-                            <p class="mb-0">No hay satélites polares en memoria RAM.</p>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0 bg-white rounded-3 overflow-hidden shadow-sm">
-                                <thead class="table-dark text-uppercase fs-6">
-                                    <tr>
-                                        <th scope="col" class="px-4 py-3 text-secondary">ID Satélite</th>
-                                        <th scope="col" class="py-3 text-secondary">Nombre</th>
-                                        <th scope="col" class="py-3 text-secondary">Frecuencia</th>
-                                        <th scope="col" class="py-3 text-secondary">Posición (Fila, Col)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var nodo in Model.RedSatelital.GetNodesByType("POL"))
-                                    {
-                                        <tr>
-                                            <td class="px-4 py-3 font-monospace fw-bold text-info">@nodo.Id</td>
-                                            <td class="py-3 fw-semibold text-dark">@nodo.Name</td>
-                                            <td class="py-3">
-                                                <span class="badge bg-light text-dark font-monospace border px-2 py-1">
-                                                    @nodo.ExtraData MHz
-                                                </span>
-                                            </td>
-                                            <td class="py-3 font-monospace text-muted">(@nodo.Row, @nodo.Col)</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    }
-                </div>
-            </div>
-
-            <!-- Tabla Antenas Terrestres -->
-            <div class="card shadow-sm border-0 rounded-3 overflow-hidden mb-4">
-                <div class="card-header bg-success text-white px-4 py-3 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-semibold">Antenas Terrestres en Memoria</h5>
-                    <span class="badge bg-light text-dark rounded-pill px-3">@Model.RedSatelital.CountByType("ANT") Elementos</span>
-                </div>
-                <div class="card-body p-4 bg-light">
-                    @if (Model.RedSatelital.CountByType("ANT") == 0)
-                    {
-                        <div class="text-center py-4 text-muted">
-                            <i class="bi bi-folder-x display-4 text-secondary mb-3 d-block"></i>
-                            <p class="mb-0">No hay antenas terrestres en memoria RAM.</p>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0 bg-white rounded-3 overflow-hidden shadow-sm">
-                                <thead class="table-dark text-uppercase fs-6">
-                                    <tr>
-                                        <th scope="col" class="px-4 py-3 text-secondary">ID Antena</th>
-                                        <th scope="col" class="py-3 text-secondary">Nombre</th>
-                                        <th scope="col" class="py-3 text-secondary">Coordenadas</th>
-                                        <th scope="col" class="py-3 text-secondary">IP Nodo</th>
-                                        <th scope="col" class="py-3 text-secondary">Posición (Fila, Col)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var nodo in Model.RedSatelital.GetNodesByType("ANT"))
-                                    {
-                                        <tr>
-                                            <td class="px-4 py-3 font-monospace fw-bold text-success">@nodo.Id</td>
-                                            <td class="py-3 fw-semibold text-dark">@nodo.Name</td>
-                                            <td class="py-3 font-monospace text-muted">@nodo.ExtraData</td>
-                                            <td class="py-3">
-                                                <span class="badge bg-light text-dark font-monospace border px-2 py-1">
-                                                    @nodo.IpAddress
-                                                </span>
-                                            </td>
-                                            <td class="py-3 font-monospace text-muted">(@nodo.Row, @nodo.Col)</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    }
-                </div>
-            </div>
-
-            <!-- Tabla Logs -->
-            <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
-                <div class="card-header bg-secondary text-white px-4 py-3 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-semibold">Bitácora de Auditoría (LogAuditoria)</h5>
-                    <span class="badge bg-light text-dark rounded-pill px-3">@Model.Logs.Count Eventos</span>
-                </div>
-                <div class="card-body p-4 bg-light">
-                    @if (Model.Logs.IsEmpty)
-                    {
-                        <div class="text-center py-4 text-muted">
-                            <i class="bi bi-journal-x display-4 text-secondary mb-3 d-block"></i>
-                            <p class="mb-0">No hay eventos registrados en la bitácora.</p>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0 bg-white rounded-3 overflow-hidden shadow-sm">
-                                <thead class="table-dark text-uppercase fs-6">
-                                    <tr>
-                                        <th scope="col" class="px-4 py-3 text-secondary">Timestamp</th>
-                                        <th scope="col" class="py-3 text-secondary">Tipo</th>
-                                        <th scope="col" class="py-3 text-secondary">Mensaje</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @{
-                                        var actualLog = Model.Logs.ObtenerCabeza();
-                                        while (actualLog != null)
-                                        {
+                        <div class="card-body p-4 bg-light">
+                            @if (Model.RedSatelital.CountByType("ECU") == 0)
+                            {
+                                <div class="text-center py-4 text-muted">
+                                    <i class="bi bi-folder-x display-4 text-secondary mb-3 d-block"></i>
+                                    <p class="mb-0">No hay satélites ecuatoriales en memoria RAM.</p>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0 bg-white rounded-3 overflow-hidden shadow-sm">
+                                        <thead class="table-dark text-uppercase fs-6">
                                             <tr>
-                                                <td class="px-4 py-3 font-monospace text-muted small">
-                                                    @actualLog.Dato.FechaHora.ToString("yyyy-MM-dd HH:mm:ss")
-                                                </td>
-                                                <td class="py-3">
-                                                    @if (actualLog.Dato.Tipo == "ERROR")
-                                                    {
-                                                        <span class="badge bg-danger">ERROR</span>
-                                                    }
-                                                    else if (actualLog.Dato.Tipo == "ALERTA")
-                                                    {
-                                                        <span class="badge bg-warning text-dark">ALERTA</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="badge bg-success">INFO</span>
-                                                    }
-                                                </td>
-                                                <td class="py-3 text-dark">@actualLog.Dato.Mensaje</td>
+                                                <th scope="col" class="px-4 py-3 text-secondary">ID Satélite</th>
+                                                <th scope="col" class="py-3 text-secondary">Nombre</th>
+                                                <th scope="col" class="py-3 text-secondary">Dirección IP</th>
+                                                <th scope="col" class="py-3 text-secondary">Posición (Fila, Col)</th>
                                             </tr>
-                                            actualLog = actualLog.Siguiente;
-                                        }
-                                    }
-                                </tbody>
-                            </table>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var nodo in Model.RedSatelital.GetNodesByType("ECU"))
+                                            {
+                                                <tr>
+                                                    <td class="px-4 py-3 font-monospace fw-bold text-primary">@nodo.Id</td>
+                                                    <td class="py-3 fw-semibold text-dark">@nodo.Name</td>
+                                                    <td class="py-3">
+                                                        <span class="badge bg-light text-dark font-monospace border px-2 py-1">
+                                                            @nodo.IpAddress
+                                                        </span>
+                                                    </td>
+                                                    <td class="py-3 font-monospace text-muted">(@nodo.Row, @nodo.Col)</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
                         </div>
-                    }
+                    </div>
+
+                    <!-- Tabla Satélites Polares -->
+                    <div class="card shadow-sm border-0 rounded-3 overflow-hidden mb-4">
+                        <div class="card-header bg-info text-white px-4 py-3 d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0 fw-semibold">Satélites Polares en Memoria</h5>
+                            <span class="badge bg-light text-dark rounded-pill px-3">@Model.RedSatelital.CountByType("POL")
+                                Elementos</span>
+                            </div>
+                            <div class="card-body p-4 bg-light">
+                                @if (Model.RedSatelital.CountByType("POL") == 0)
+                                {
+                                    <div class="text-center py-4 text-muted">
+                                        <i class="bi bi-folder-x display-4 text-secondary mb-3 d-block"></i>
+                                        <p class="mb-0">No hay satélites polares en memoria RAM.</p>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle mb-0 bg-white rounded-3 overflow-hidden shadow-sm">
+                                            <thead class="table-dark text-uppercase fs-6">
+                                                <tr>
+                                                    <th scope="col" class="px-4 py-3 text-secondary">ID Satélite</th>
+                                                    <th scope="col" class="py-3 text-secondary">Nombre</th>
+                                                    <th scope="col" class="py-3 text-secondary">Frecuencia</th>
+                                                    <th scope="col" class="py-3 text-secondary">Posición (Fila, Col)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var nodo in Model.RedSatelital.GetNodesByType("POL"))
+                                                {
+                                                    <tr>
+                                                        <td class="px-4 py-3 font-monospace fw-bold text-info">@nodo.Id</td>
+                                                        <td class="py-3 fw-semibold text-dark">@nodo.Name</td>
+                                                        <td class="py-3">
+                                                            <span class="badge bg-light text-dark font-monospace border px-2 py-1">
+                                                                @nodo.ExtraData MHz
+                                                            </span>
+                                                        </td>
+                                                        <td class="py-3 font-monospace text-muted">(@nodo.Row, @nodo.Col)</td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Tabla Antenas Terrestres -->
+                        <div class="card shadow-sm border-0 rounded-3 overflow-hidden mb-4">
+                            <div
+                                class="card-header bg-success text-white px-4 py-3 d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0 fw-semibold">Antenas Terrestres en Memoria</h5>
+                                <span class="badge bg-light text-dark rounded-pill px-3">@Model.RedSatelital.CountByType("ANT")
+                                    Elementos</span>
+                                </div>
+                                <div class="card-body p-4 bg-light">
+                                    @if (Model.RedSatelital.CountByType("ANT") == 0)
+                                    {
+                                        <div class="text-center py-4 text-muted">
+                                            <i class="bi bi-folder-x display-4 text-secondary mb-3 d-block"></i>
+                                            <p class="mb-0">No hay antenas terrestres en memoria RAM.</p>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="table-responsive">
+                                            <table class="table table-hover align-middle mb-0 bg-white rounded-3 overflow-hidden shadow-sm">
+                                                <thead class="table-dark text-uppercase fs-6">
+                                                    <tr>
+                                                        <th scope="col" class="px-4 py-3 text-secondary">ID Antena</th>
+                                                        <th scope="col" class="py-3 text-secondary">Nombre</th>
+                                                        <th scope="col" class="py-3 text-secondary">Coordenadas</th>
+                                                        <th scope="col" class="py-3 text-secondary">IP Nodo</th>
+                                                        <th scope="col" class="py-3 text-secondary">Posición (Fila, Col)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var nodo in Model.RedSatelital.GetNodesByType("ANT"))
+                                                    {
+                                                        <tr>
+                                                            <td class="px-4 py-3 font-monospace fw-bold text-success">@nodo.Id</td>
+                                                            <td class="py-3 fw-semibold text-dark">@nodo.Name</td>
+                                                            <td class="py-3 font-monospace text-muted">@nodo.ExtraData</td>
+                                                            <td class="py-3">
+                                                                <span class="badge bg-light text-dark font-monospace border px-2 py-1">
+                                                                    @nodo.IpAddress
+                                                                </span>
+                                                            </td>
+                                                            <td class="py-3 font-monospace text-muted">(@nodo.Row, @nodo.Col)</td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- Tabla Logs -->
+                            <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+                                <div
+                                    class="card-header bg-secondary text-white px-4 py-3 d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0 fw-semibold">Bitácora de Auditoría (LogAuditoria)</h5>
+                                    <span class="badge bg-light text-dark rounded-pill px-3">@Model.Logs.Count Eventos</span>
+                                </div>
+                                <div class="card-body p-4 bg-light">
+                                    @if (Model.Logs.IsEmpty)
+                                    {
+                                        <div class="text-center py-4 text-muted">
+                                            <i class="bi bi-journal-x display-4 text-secondary mb-3 d-block"></i>
+                                            <p class="mb-0">No hay eventos registrados en la bitácora.</p>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="table-responsive">
+                                            <table class="table table-hover align-middle mb-0 bg-white rounded-3 overflow-hidden shadow-sm">
+                                                <thead class="table-dark text-uppercase fs-6">
+                                                    <tr>
+                                                        <th scope="col" class="px-4 py-3 text-secondary">Timestamp</th>
+                                                        <th scope="col" class="py-3 text-secondary">Tipo</th>
+                                                        <th scope="col" class="py-3 text-secondary">Mensaje</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @{
+                                                        var actualLog = Model.Logs.ObtenerCabeza();
+                                                        while (actualLog != null)
+                                                        {
+                                                            <tr>
+                                                                <td class="px-4 py-3 font-monospace text-muted small">
+                                                                    @actualLog.Dato.FechaHora.ToString("yyyy-MM-dd HH:mm:ss")
+                                                                </td>
+                                                                <td class="py-3">
+                                                                    @if (actualLog.Dato.Tipo == "ERROR")
+                                                                    {
+                                                                        <span class="badge bg-danger">ERROR</span>
+                                                                    }
+                                                                    else if (actualLog.Dato.Tipo == "ALERTA")
+                                                                    {
+                                                                        <span class="badge bg-warning text-dark">ALERTA</span>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <span class="badge bg-success">INFO</span>
+                                                                    }
+                                                                </td>
+                                                                <td class="py-3 text-dark">@actualLog.Dato.Mensaje</td>
+                                                            </tr>
+                                                            actualLog = actualLog.Siguiente;
+                                                        }
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
             </div>
-
-        </div>
-    </div>
-<<<<<<< HEAD
-</div>
-=======
-</div>
->>>>>>> develop
