@@ -101,6 +101,30 @@ public void Mostrar()
 }
 
 
+public int Count
+{
+    get
+    {
+        return cantidad;
+    }
+}
+
+
+public bool IsEmpty
+{
+    get
+    {
+        return raiz == null;
+    }
+}
+
+
+public void Clear()
+{
+    raiz = null;
+    cantidad = 0;
+}
+
 private void Recorrer(AbbNode nodo)
 {
     if(nodo == null)
@@ -114,5 +138,38 @@ private void Recorrer(AbbNode nodo)
     );
 
     Recorrer(nodo.Derecha);
+}
+
+
+public AbbNode Search(string hexCode)
+{
+    return Buscar(raiz, hexCode);
+}
+
+private AbbNode Buscar(AbbNode actual, string hexCode)
+{
+
+    if(actual == null)
+    {
+        return null;
+    }
+
+
+    if(actual.HexCode == hexCode)
+    {
+        return actual;
+    }
+
+
+    AbbNode encontrado = Buscar(actual.Izquierda, hexCode);
+
+
+    if(encontrado != null)
+    {
+        return encontrado;
+    }
+
+
+    return Buscar(actual.Derecha, hexCode);
 }
 }

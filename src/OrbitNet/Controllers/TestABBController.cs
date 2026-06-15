@@ -48,15 +48,57 @@ namespace OrbitNet.Controllers
             );
 
 
-            Console.WriteLine("===== PRUEBA ABB =====");
+            Console.WriteLine("===== ABB INICIAL =====");
 
-            buffer.Mostrar();
-
-
-            Console.WriteLine("======================");
+buffer.Mostrar();
 
 
-            return Content("ABB probado correctamente");
+Console.WriteLine("Cantidad de mensajes: " + buffer.Count);
+
+
+
+Console.WriteLine("===== BUSCAR A200 =====");
+
+AbbNode encontrado = buffer.Search("A200");
+
+
+if(encontrado != null)
+{
+    Console.WriteLine(
+        "Encontrado: "
+        + encontrado.HexCode
+        + " Prioridad: "
+        + encontrado.Prioridad
+    );
+}
+else
+{
+    Console.WriteLine("No encontrado");
+}
+
+
+
+Console.WriteLine("===== DEQUEUE =====");
+
+
+AbbNode eliminado = buffer.Dequeue();
+
+
+if(eliminado != null)
+{
+    Console.WriteLine(
+        "Salio: "
+        + eliminado.HexCode
+        + " Prioridad: "
+        + eliminado.Prioridad
+    );
+}
+
+
+
+Console.WriteLine("Cantidad restante: " + buffer.Count);
+
+return Content("Prueba ABB terminada");
         }
 
     }
